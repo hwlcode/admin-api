@@ -5,6 +5,10 @@ var user_1 = require("./schema/user");
 exports.UserModel = user_1.UserModel;
 var upload_1 = require("./schema/upload");
 exports.UploadModel = upload_1.UploadModel;
+var article_cate_1 = require("./schema/article_cate");
+exports.ArticleCateModel = article_cate_1.ArticleCateModel;
+var article_tags_1 = require("./schema/article_tags");
+exports.ArticleTagsModel = article_tags_1.ArticleTagsModel;
 var db = '';
 if (process.env.NODE_ENV === 'production') {
     db = 'mongodb://127.0.0.1:27027/chadao';

@@ -1,6 +1,8 @@
 import * as mongoose from 'mongoose';
 import {UserModel} from './schema/user';
 import {UploadModel} from './schema/upload';
+import {ArticleCateModel} from './schema/article_cate';
+import {ArticleTagsModel} from './schema/article_tags';
 
 let db = '';
 if (process.env.NODE_ENV === 'production') {
@@ -18,6 +20,6 @@ mongoose.connect(db, {useNewUrlParser: true}, err => {
 });
 
 export {
-    UserModel, UploadModel
+    UserModel, UploadModel, ArticleCateModel, ArticleTagsModel
 }
 
