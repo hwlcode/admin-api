@@ -1,4 +1,5 @@
-import {ProductCateModel} from "../models/schema/pro_cate";
+import {ProductCateModel, ProudctsModel} from "../models";
+
 const ObjectId = require('mongodb').ObjectID;
 
 export default function (app) {
@@ -62,5 +63,68 @@ export default function (app) {
             msg: '请求成功',
             data: cates
         });
+    });
+
+    // 添加商品
+    app.post('/api/products/post', async (req, res) => {
+        let body = req.body;
+        const cate = await ProudctsModel.findOne({title: body.title}).exec();
+        if (cate == null) {
+            await ProudctsModel.create(body);
+            res.json({
+                status: 200,
+                msg: '添加成功'
+            });
+        } else {
+            res.json({
+                status: 1000,
+                msg: '添加失败, 请勿重复添加商品'
+            });
+        }
+    });
+
+    //搜索商品
+    app.get('/api/products/list', async (req, res) => {
+        let page = req.query.page || 1;
+        let keywords = req.query.keywords || '';
+        let cates = req.query.cates;
+        let limit = 12; // 每页查询的数据
+        let skip = (page - 1) * limit;
+
+        let products = [];
+        let countProduct = [];
+
+        if (cates) {
+            let cateArr = cates.split(',');
+            // 转化为objectId形式
+            let ObjectIdCateArrt = [];
+            cateArr.map( cate => {
+                ObjectIdCateArrt.push(new ObjectId(cate));
+            });
+
+            products = await ProudctsModel.find({
+                    title: new RegExp(keywords, 'gi'),
+                    cate: {$in: ObjectIdCateArrt}
+                }).skip(skip).limit(limit).sort({createdAt: -1}).exec();
+
+            countProduct = await ProudctsModel.find({
+                title: new RegExp(keywords, 'gi'),
+                cate: {$in: ObjectIdCateArrt}
+            }).exec();
+        }else{
+            products = await ProudctsModel.find({
+                title: new RegExp(keywords, 'gi')
+            }).skip(skip).limit(limit).sort({createdAt: -1}).exec();
+            countProduct = await ProudctsModel.find({
+                title: new RegExp(keywords, 'gi')
+            }).exec();
+        }
+
+        res.json({
+            status: 200,
+            msg: '成功',
+            data: products,
+            total: countProduct.length
+        })
     });
 }

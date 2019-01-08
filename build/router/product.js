@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var pro_cate_1 = require("../models/schema/pro_cate");
+var models_1 = require("../models");
 var ObjectId = require('mongodb').ObjectID;
 function default_1(app) {
     var _this = this;
@@ -45,11 +45,11 @@ function default_1(app) {
             switch (_a.label) {
                 case 0:
                     body = req.body;
-                    return [4 /*yield*/, pro_cate_1.ProductCateModel.findOne({ name: body.name }).exec()];
+                    return [4 /*yield*/, models_1.ProductCateModel.findOne({ name: body.name }).exec()];
                 case 1:
                     cate = _a.sent();
                     if (!(cate == null)) return [3 /*break*/, 3];
-                    return [4 /*yield*/, pro_cate_1.ProductCateModel.create(body)];
+                    return [4 /*yield*/, models_1.ProductCateModel.create(body)];
                 case 2:
                     _a.sent();
                     res.json({
@@ -74,13 +74,13 @@ function default_1(app) {
                 case 0:
                     status = req.query.status;
                     if (!(status != undefined)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, pro_cate_1.ProductCateModel.find({
+                    return [4 /*yield*/, models_1.ProductCateModel.find({
                             status: status
                         }).exec()];
                 case 1:
                     productsCates = _a.sent();
                     return [3 /*break*/, 4];
-                case 2: return [4 /*yield*/, pro_cate_1.ProductCateModel.find().exec()];
+                case 2: return [4 /*yield*/, models_1.ProductCateModel.find().exec()];
                 case 3:
                     productsCates = _a.sent();
                     _a.label = 4;
@@ -100,10 +100,10 @@ function default_1(app) {
             switch (_a.label) {
                 case 0:
                     id = new ObjectId(req.query.id);
-                    return [4 /*yield*/, pro_cate_1.ProductCateModel.findOne({ _id: id }).exec()];
+                    return [4 /*yield*/, models_1.ProductCateModel.findOne({ _id: id }).exec()];
                 case 1:
                     cate = _a.sent();
-                    return [4 /*yield*/, pro_cate_1.ProductCateModel.updateOne({ _id: id }, {
+                    return [4 /*yield*/, models_1.ProductCateModel.updateOne({ _id: id }, {
                             status: !cate['status']
                         }).exec()];
                 case 2:
@@ -122,16 +122,99 @@ function default_1(app) {
             switch (_a.label) {
                 case 0:
                     id = new ObjectId(req.query.id);
-                    return [4 /*yield*/, pro_cate_1.ProductCateModel.findOne({ _id: id }).remove()];
+                    return [4 /*yield*/, models_1.ProductCateModel.findOne({ _id: id }).remove()];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, pro_cate_1.ProductCateModel.find().exec()];
+                    return [4 /*yield*/, models_1.ProductCateModel.find().exec()];
                 case 2:
                     cates = _a.sent();
                     res.json({
                         status: 200,
                         msg: '请求成功',
                         data: cates
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 添加商品
+    app.post('/api/products/post', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var body, cate;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    body = req.body;
+                    return [4 /*yield*/, models_1.ProudctsModel.findOne({ title: body.title }).exec()];
+                case 1:
+                    cate = _a.sent();
+                    if (!(cate == null)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, models_1.ProudctsModel.create(body)];
+                case 2:
+                    _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: '添加成功'
+                    });
+                    return [3 /*break*/, 4];
+                case 3:
+                    res.json({
+                        status: 1000,
+                        msg: '添加失败, 请勿重复添加商品'
+                    });
+                    _a.label = 4;
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+    //搜索商品
+    app.get('/api/products/list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var page, keywords, cates, limit, skip, products, countProduct, cateArr, ObjectIdCateArrt_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    page = req.query.page || 1;
+                    keywords = req.query.keywords || '';
+                    cates = req.query.cates;
+                    limit = 12;
+                    skip = (page - 1) * limit;
+                    products = [];
+                    countProduct = [];
+                    if (!cates) return [3 /*break*/, 3];
+                    cateArr = cates.split(',');
+                    ObjectIdCateArrt_1 = [];
+                    cateArr.map(function (cate) {
+                        ObjectIdCateArrt_1.push(new ObjectId(cate));
+                    });
+                    return [4 /*yield*/, models_1.ProudctsModel.find({
+                            title: new RegExp(keywords, 'gi'),
+                            cate: { $in: ObjectIdCateArrt_1 }
+                        }).skip(skip).limit(limit).sort({ createdAt: -1 }).exec()];
+                case 1:
+                    products = _a.sent();
+                    return [4 /*yield*/, models_1.ProudctsModel.find({
+                            title: new RegExp(keywords, 'gi'),
+                            cate: { $in: ObjectIdCateArrt_1 }
+                        }).exec()];
+                case 2:
+                    countProduct = _a.sent();
+                    return [3 /*break*/, 6];
+                case 3: return [4 /*yield*/, models_1.ProudctsModel.find({
+                        title: new RegExp(keywords, 'gi')
+                    }).skip(skip).limit(limit).sort({ createdAt: -1 }).exec()];
+                case 4:
+                    products = _a.sent();
+                    return [4 /*yield*/, models_1.ProudctsModel.find({
+                            title: new RegExp(keywords, 'gi')
+                        }).exec()];
+                case 5:
+                    countProduct = _a.sent();
+                    _a.label = 6;
+                case 6:
+                    res.json({
+                        status: 200,
+                        msg: '成功',
+                        data: products,
+                        total: countProduct.length
                     });
                     return [2 /*return*/];
             }

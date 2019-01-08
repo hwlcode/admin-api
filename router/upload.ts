@@ -35,7 +35,7 @@ export default function (app) {
         //要上传文件的文件名
         const key = file.originalname;
         //要上传文件的本地路径
-        const filePath = file.path
+        const filePath = file.path;
         //生成上传 Token
         const token = uptoken(bucket, key);
         // 上传

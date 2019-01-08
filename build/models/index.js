@@ -13,6 +13,8 @@ var articles_1 = require("./schema/articles");
 exports.ArticlesModel = articles_1.ArticlesModel;
 var pro_cate_1 = require("./schema/pro_cate");
 exports.ProductCateModel = pro_cate_1.ProductCateModel;
+var product_1 = require("./schema/product");
+exports.ProudctsModel = product_1.ProudctsModel;
 var db = '';
 if (process.env.NODE_ENV === 'production') {
     db = 'mongodb://127.0.0.1:27027/chadao';
