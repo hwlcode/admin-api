@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = require("../models");
+var jwt_1 = require("../lib/jwt");
 var ObjectId = require('mongodb').ObjectID;
 function default_1(app) {
     var _this = this;
@@ -241,5 +242,128 @@ function default_1(app) {
             }
         });
     }); });
+    // 发布文章
+    app.post('/api/article/post', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var body, token, jwt, result, id;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    body = req.body;
+                    token = req.headers.token;
+                    jwt = new jwt_1.Jwt(token);
+                    result = jwt.verifyToken();
+                    id = new ObjectId(result);
+                    body.user = id;
+                    return [4 /*yield*/, models_1.ArticlesModel.create(body)];
+                case 1:
+                    _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: '发布成功'
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 搜索文章
+    app.get('/api/article/search', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var keywords, cate, tags, page, articles;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    keywords = req.query.keywords || '';
+                    cate = req.query.cate || [];
+                    tags = req.query.tags || [];
+                    page = req.query.q || 1;
+                    return [4 /*yield*/, getArticles({
+                            keywords: keywords,
+                            cate: cate,
+                            tags: tags,
+                            page: page
+                        })];
+                case 1:
+                    articles = _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: '请求成功',
+                        data: articles
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 删除文章
+    app.get('/api/article/del', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var id, keywords, cate, tags, page, articles;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    id = new ObjectId(req.query.id);
+                    return [4 /*yield*/, models_1.ArticlesModel.findOne({ _id: id }).remove()];
+                case 1:
+                    _a.sent();
+                    keywords = req.query.keywords || '';
+                    cate = req.query.cate || [];
+                    tags = req.query.tags || [];
+                    page = req.query.q || 1;
+                    articles = getArticles({
+                        keywords: keywords,
+                        cate: cate,
+                        tags: tags,
+                        page: page
+                    });
+                    res.json({
+                        status: 200,
+                        msg: '请求成功',
+                        data: articles
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
 }
 exports.default = default_1;
+function getArticles() {
+    var options = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        options[_i] = arguments[_i];
+    }
+    var obj = {};
+    var limit = 10;
+    var page = 1;
+    var skip = 0;
+    // 关键词
+    if (options['keywords'] != 'undefined') {
+        obj['title'] = new RegExp(options[0]['keywords'], 'gi');
+    }
+    // 类目，可以单一也可以多个类目并合
+    if (options['cate'] != 'undefined') {
+        obj['cate'] = new RegExp(options['cate'], 'gi');
+    }
+    // 标签
+    // if (options['tags'] != 'undefined') {
+    //     obj['tags'] = new RegExp(options['tags'], 'gi');
+    // }
+    // 分页
+    if (options['page'] != 'undefined') {
+        skip = (page - 1) * limit;
+    }
+    console.log(obj);
+    var articles = models_1.ArticlesModel.find(obj).populate([
+        {
+            path: 'user',
+            select: '_id name avatar' //查询字段
+        },
+        {
+            path: 'tags',
+            select: 'name _id'
+        },
+        {
+            path: 'cate',
+            select: 'name _id'
+        }
+    ]).skip(skip).limit(limit).sort({
+        createdAt: -1
+    }).exec();
+    return articles;
+}

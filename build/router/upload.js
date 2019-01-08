@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var multer = require("multer");
-var models_1 = require("../models");
+var qiniu = require("qiniu");
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         //目录要手动创建
@@ -47,34 +47,69 @@ var storage = multer.diskStorage({
         cb(null, file.fieldname + '-' + Date.now() + "." + file.originalname.split('.')[1]);
     }
 });
-var upload = multer({
-    storage: storage
-});
+// 用于获取客户端传过来的file数据 http://www.expressjs.com.cn/4x/api.html#req.body
+var upload = multer({ storage: storage });
+// 错误用法：获取不到file.path -> 注：这个是上传后的地址
+// const upload = multer(storage);
+// 七牛配置
+qiniu.conf.ACCESS_KEY = 'knHk6MSfcyIYaH-VDUvLLvNNi8lmK5LCLvfeKa7h';
+qiniu.conf.SECRET_KEY = 'VH9zMDzg9wBZp4UBfZZRSLSPdRt6YBH4A2VrkPtA';
+var SDNURL = 'http://pl02v1azy.bkt.clouddn.com/'; // 七牛空间地址
+//要上传的空间
+var bucket = 'webcdn';
+//构建上传策略函数
+function uptoken(bucket, key) {
+    var putPolicy = new qiniu.rs.PutPolicy({ scope: bucket + ":" + key });
+    return putPolicy.uploadToken();
+}
+// 改造成七牛上传
 function default_1(app) {
     var _this = this;
     app.post('/api/file/upload', upload.single('file'), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var file, img;
+        var file, key, filePath, token, extra, formUploader;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    file = req.file;
-                    return [4 /*yield*/, models_1.UploadModel.create({
-                            mimeType: file.mimetype,
-                            originalName: file.originalname,
-                            path: file.path.split('public')[1],
-                            size: file.size
-                        })];
-                case 1:
-                    img = _a.sent();
+            file = req.file;
+            key = file.originalname;
+            filePath = file.path;
+            token = uptoken(bucket, key);
+            extra = new qiniu.form_up.PutExtra();
+            formUploader = new qiniu.form_up.FormUploader();
+            formUploader.putFile(token, key, filePath, extra, function (err, ret) {
+                if (!err) {
+                    // 上传成功， 处理返回值
                     res.send({
-                        ret_code: '0',
-                        id: img._id,
-                        path: img['path'],
+                        code: 200,
+                        path: SDNURL + key,
                         msg: 'success'
                     });
-                    return [2 /*return*/];
-            }
+                }
+                else {
+                    // 上传失败， 处理返回代码
+                    console.log(err);
+                }
+            });
+            return [2 /*return*/];
         });
     }); });
 }
 exports.default = default_1;
+// 本地上传
+// export default function (app) {
+//     app.post('/api/file/upload', upload.single('file'), async (req, res) => {
+//         const file = req.file;
+//
+//         var img = await UploadModel.create({
+//             mimeType: file.mimetype,
+//             originalName: file.originalname,
+//             path: file.path.split('public')[1],
+//             size: file.size
+//         });
+//
+//         res.send({
+//             ret_code: '0',
+//             id: img._id,
+//             path: img['path'],
+//             msg: 'success'
+//         });
+//     });
+// }

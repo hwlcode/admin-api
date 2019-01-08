@@ -9,6 +9,10 @@ var article_cate_1 = require("./schema/article_cate");
 exports.ArticleCateModel = article_cate_1.ArticleCateModel;
 var article_tags_1 = require("./schema/article_tags");
 exports.ArticleTagsModel = article_tags_1.ArticleTagsModel;
+var articles_1 = require("./schema/articles");
+exports.ArticlesModel = articles_1.ArticlesModel;
+var pro_cate_1 = require("./schema/pro_cate");
+exports.ProductCateModel = pro_cate_1.ProductCateModel;
 var db = '';
 if (process.env.NODE_ENV === 'production') {
     db = 'mongodb://127.0.0.1:27027/chadao';
