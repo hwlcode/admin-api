@@ -220,5 +220,42 @@ function default_1(app) {
             }
         });
     }); });
+    app.get('/api/products/del', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var id;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    id = new ObjectId(req.query.id);
+                    return [4 /*yield*/, models_1.ProudctsModel.findOne({ _id: id }).remove()];
+                case 1:
+                    _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'success'
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    app.get('/api/products/get', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var id, product;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    id = new ObjectId(req.query.id);
+                    return [4 /*yield*/, models_1.ProudctsModel.findOne({
+                            _id: id
+                        }).exec()];
+                case 1:
+                    product = _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'success',
+                        data: product
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
 }
 exports.default = default_1;

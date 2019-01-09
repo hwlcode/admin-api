@@ -98,20 +98,20 @@ export default function (app) {
             let cateArr = cates.split(',');
             // 转化为objectId形式
             let ObjectIdCateArrt = [];
-            cateArr.map( cate => {
+            cateArr.map(cate => {
                 ObjectIdCateArrt.push(new ObjectId(cate));
             });
 
             products = await ProudctsModel.find({
-                    title: new RegExp(keywords, 'gi'),
-                    cate: {$in: ObjectIdCateArrt}
-                }).skip(skip).limit(limit).sort({createdAt: -1}).exec();
+                title: new RegExp(keywords, 'gi'),
+                cate: {$in: ObjectIdCateArrt}
+            }).skip(skip).limit(limit).sort({createdAt: -1}).exec();
 
             countProduct = await ProudctsModel.find({
                 title: new RegExp(keywords, 'gi'),
                 cate: {$in: ObjectIdCateArrt}
             }).exec();
-        }else{
+        } else {
             products = await ProudctsModel.find({
                 title: new RegExp(keywords, 'gi')
             }).skip(skip).limit(limit).sort({createdAt: -1}).exec();
@@ -125,6 +125,29 @@ export default function (app) {
             msg: '成功',
             data: products,
             total: countProduct.length
+        })
+    });
+
+    app.get('/api/products/del', async (req, res) => {
+        let id = new ObjectId(req.query.id);
+        await ProudctsModel.findOne({_id: id}).remove();
+
+        res.json({
+            status: 200,
+            msg: 'success'
+        });
+    });
+
+    app.get('/api/products/get', async (req, res) => {
+        let id = new ObjectId(req.query.id);
+        let product = await ProudctsModel.findOne({
+            _id: id
+        }).exec();
+
+        res.json({
+            status: 200,
+            msg: 'success',
+            data: product
         })
     });
 }
