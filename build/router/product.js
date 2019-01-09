@@ -144,25 +144,38 @@ function default_1(app) {
             switch (_a.label) {
                 case 0:
                     body = req.body;
-                    return [4 /*yield*/, models_1.ProudctsModel.findOne({ title: body.title }).exec()];
+                    if (!(body.id != undefined)) return [3 /*break*/, 2];
+                    // 更新
+                    return [4 /*yield*/, models_1.ProudctsModel.findOneAndUpdate({
+                            _id: new ObjectId(body.id)
+                        }, body)];
                 case 1:
+                    // 更新
+                    _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: '更新成功'
+                    });
+                    return [3 /*break*/, 6];
+                case 2: return [4 /*yield*/, models_1.ProudctsModel.findOne({ title: body.title }).exec()];
+                case 3:
                     cate = _a.sent();
-                    if (!(cate == null)) return [3 /*break*/, 3];
+                    if (!(cate == null)) return [3 /*break*/, 5];
                     return [4 /*yield*/, models_1.ProudctsModel.create(body)];
-                case 2:
+                case 4:
                     _a.sent();
                     res.json({
                         status: 200,
                         msg: '添加成功'
                     });
-                    return [3 /*break*/, 4];
-                case 3:
+                    return [3 /*break*/, 6];
+                case 5:
                     res.json({
                         status: 1000,
                         msg: '添加失败, 请勿重复添加商品'
                     });
-                    _a.label = 4;
-                case 4: return [2 /*return*/];
+                    _a.label = 6;
+                case 6: return [2 /*return*/];
             }
         });
     }); });

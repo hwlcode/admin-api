@@ -143,7 +143,17 @@ export default function (app) {
         let result = jwt.verifyToken();
         let id = new ObjectId(result);
         body.user = id;
-        await ArticlesModel.create(body);
+
+        if (body.id != undefined) {
+            // 更新
+            await ArticlesModel.findOneAndUpdate({
+                _id: new ObjectId(body.id)
+            }, body);
+        } else {
+            // 新增
+            await ArticlesModel.create(body);
+        }
+
         res.json({
             status: 200,
             msg: '发布成功'
@@ -151,22 +161,63 @@ export default function (app) {
     });
     // 搜索文章
     app.get('/api/article/search', async (req, res) => {
-        let keywords = req.query.keywords || '';
-        let cate = req.query.cate || [];
-        let tags = req.query.tags || [];
-        let page = req.query.q || 1;
+        let page = req.query.page || 1;
+        const limit = 6; // 每页查询的数据
+        let skip = (page - 1) * limit;
 
-        let articles = await getArticles({
-            keywords: keywords,
-            cate: cate,
-            tags: tags,
-            page: page
-        });
+        let keywords = req.query.keywords || '';
+        let cates = req.query.cates;
+        let tags = req.query.tags;
+
+        let articles = [];
+        let articlesCount = [];
+
+        let options = {};
+        options['title'] = new RegExp(keywords, 'gi');
+        if (cates) {
+            let cateArr = cates.split(',');
+            // 转化为objectId形式
+            let ObjectIdCateAttr = [];
+            cateArr.map(cate => {
+                ObjectIdCateAttr.push(new ObjectId(cate));
+            });
+            options['cate'] = {$in: ObjectIdCateAttr}
+        }
+
+        if (tags) {
+            let tagsArr = tags.split(',');
+            // 转化为objectId形式
+            let ObjectIdtagsAttr = [];
+            tagsArr.map(tag => {
+                ObjectIdtagsAttr.push(new ObjectId(tag));
+            });
+            options['tags'] = {$in: ObjectIdtagsAttr}
+        }
+
+        articles = await ArticlesModel.find(options).populate([
+            {
+                path: 'user', // 关联表
+                select: '_id name avatar'   //查询字段
+            },
+            {
+                path: 'tags',
+                select: 'name _id'
+            },
+            {
+                path: 'cate',
+                select: 'name _id'
+            }
+        ]).skip(skip).limit(limit).sort({
+            createdAt: -1
+        }).exec();
+
+        articlesCount = await ArticlesModel.find(options).exec();
 
         res.json({
             status: 200,
             msg: '请求成功',
-            data: articles
+            data: articles,
+            total: articlesCount.length
         })
     });
     // 删除文章
@@ -174,65 +225,22 @@ export default function (app) {
         let id = new ObjectId(req.query.id);
         await ArticlesModel.findOne({_id: id}).remove();
 
-        let keywords = req.query.keywords || '';
-        let cate = req.query.cate || [];
-        let tags = req.query.tags || [];
-        let page = req.query.q || 1;
-
-        let articles = getArticles({
-            keywords: keywords,
-            cate: cate,
-            tags: tags,
-            page: page
+        res.json({
+            status: 200,
+            msg: 'success'
         });
+    });
+    // 获取文章信息
+    app.get('/api/article/get', async (req, res) => {
+        let id = new ObjectId(req.query.id);
+        let article = await ArticlesModel.findOne({
+            _id: id
+        }).exec()
 
         res.json({
             status: 200,
-            msg: '请求成功',
-            data: articles
-        });
+            msg: 'success',
+            data: article
+        })
     });
-}
-
- function getArticles(...options) {
-    let obj = {};
-    let limit = 10;
-    let page = 1;
-    let skip = 0;
-    // 关键词
-    if (options['keywords'] != 'undefined') {
-        obj['title'] = new RegExp(options[0]['keywords'], 'gi');
-    }
-    // 类目，可以单一也可以多个类目并合
-    if (options['cate'] != 'undefined') {
-        obj['cate'] = new RegExp(options['cate'], 'gi');
-    }
-    // 标签
-    // if (options['tags'] != 'undefined') {
-    //     obj['tags'] = new RegExp(options['tags'], 'gi');
-    // }
-    // 分页
-    if(options['page'] != 'undefined'){
-        skip = (page - 1) * limit;
-    }
-    console.log(obj);
-
-    let articles = ArticlesModel.find(obj).populate([
-        {
-            path: 'user', // 关联表
-            select: '_id name avatar'   //查询字段
-        },
-        {
-            path: 'tags',
-            select: 'name _id'
-        },
-        {
-            path: 'cate',
-            select: 'name _id'
-        }
-    ]).skip(skip).limit(limit).sort({
-        createdAt: -1
-    }).exec();
-
-    return articles;
 }

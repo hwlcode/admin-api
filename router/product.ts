@@ -68,18 +68,31 @@ export default function (app) {
     // 添加商品
     app.post('/api/products/post', async (req, res) => {
         let body = req.body;
-        const cate = await ProudctsModel.findOne({title: body.title}).exec();
-        if (cate == null) {
-            await ProudctsModel.create(body);
+        if (body.id != undefined) {
+            // 更新
+            await ProudctsModel.findOneAndUpdate({
+                _id: new ObjectId(body.id)
+            }, body);
+
             res.json({
                 status: 200,
-                msg: '添加成功'
+                msg: '更新成功'
             });
-        } else {
-            res.json({
-                status: 1000,
-                msg: '添加失败, 请勿重复添加商品'
-            });
+        }else{
+            // 新增
+            const cate = await ProudctsModel.findOne({title: body.title}).exec();
+            if (cate == null) {
+                await ProudctsModel.create(body);
+                res.json({
+                    status: 200,
+                    msg: '添加成功'
+                });
+            } else {
+                res.json({
+                    status: 1000,
+                    msg: '添加失败, 请勿重复添加商品'
+                });
+            }
         }
     });
 

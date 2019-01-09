@@ -254,9 +254,23 @@ function default_1(app) {
                     result = jwt.verifyToken();
                     id = new ObjectId(result);
                     body.user = id;
-                    return [4 /*yield*/, models_1.ArticlesModel.create(body)];
+                    if (!(body.id != undefined)) return [3 /*break*/, 2];
+                    // 更新
+                    return [4 /*yield*/, models_1.ArticlesModel.findOneAndUpdate({
+                            _id: new ObjectId(body.id)
+                        }, body)];
                 case 1:
+                    // 更新
                     _a.sent();
+                    return [3 /*break*/, 4];
+                case 2: 
+                // 新增
+                return [4 /*yield*/, models_1.ArticlesModel.create(body)];
+                case 3:
+                    // 新增
+                    _a.sent();
+                    _a.label = 4;
+                case 4:
                     res.json({
                         status: 200,
                         msg: '发布成功'
@@ -267,26 +281,62 @@ function default_1(app) {
     }); });
     // 搜索文章
     app.get('/api/article/search', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var keywords, cate, tags, page, articles;
+        var page, limit, skip, keywords, cates, tags, articles, articlesCount, options, cateArr, ObjectIdCateAttr_1, tagsArr, ObjectIdtagsAttr_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    page = req.query.page || 1;
+                    limit = 6;
+                    skip = (page - 1) * limit;
                     keywords = req.query.keywords || '';
-                    cate = req.query.cate || [];
-                    tags = req.query.tags || [];
-                    page = req.query.q || 1;
-                    return [4 /*yield*/, getArticles({
-                            keywords: keywords,
-                            cate: cate,
-                            tags: tags,
-                            page: page
-                        })];
+                    cates = req.query.cates;
+                    tags = req.query.tags;
+                    articles = [];
+                    articlesCount = [];
+                    options = {};
+                    options['title'] = new RegExp(keywords, 'gi');
+                    if (cates) {
+                        cateArr = cates.split(',');
+                        ObjectIdCateAttr_1 = [];
+                        cateArr.map(function (cate) {
+                            ObjectIdCateAttr_1.push(new ObjectId(cate));
+                        });
+                        options['cate'] = { $in: ObjectIdCateAttr_1 };
+                    }
+                    if (tags) {
+                        tagsArr = tags.split(',');
+                        ObjectIdtagsAttr_1 = [];
+                        tagsArr.map(function (tag) {
+                            ObjectIdtagsAttr_1.push(new ObjectId(tag));
+                        });
+                        options['tags'] = { $in: ObjectIdtagsAttr_1 };
+                    }
+                    return [4 /*yield*/, models_1.ArticlesModel.find(options).populate([
+                            {
+                                path: 'user',
+                                select: '_id name avatar' //查询字段
+                            },
+                            {
+                                path: 'tags',
+                                select: 'name _id'
+                            },
+                            {
+                                path: 'cate',
+                                select: 'name _id'
+                            }
+                        ]).skip(skip).limit(limit).sort({
+                            createdAt: -1
+                        }).exec()];
                 case 1:
                     articles = _a.sent();
+                    return [4 /*yield*/, models_1.ArticlesModel.find(options).exec()];
+                case 2:
+                    articlesCount = _a.sent();
                     res.json({
                         status: 200,
                         msg: '请求成功',
-                        data: articles
+                        data: articles,
+                        total: articlesCount.length
                     });
                     return [2 /*return*/];
             }
@@ -294,7 +344,7 @@ function default_1(app) {
     }); });
     // 删除文章
     app.get('/api/article/del', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var id, keywords, cate, tags, page, articles;
+        var id;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -302,20 +352,30 @@ function default_1(app) {
                     return [4 /*yield*/, models_1.ArticlesModel.findOne({ _id: id }).remove()];
                 case 1:
                     _a.sent();
-                    keywords = req.query.keywords || '';
-                    cate = req.query.cate || [];
-                    tags = req.query.tags || [];
-                    page = req.query.q || 1;
-                    articles = getArticles({
-                        keywords: keywords,
-                        cate: cate,
-                        tags: tags,
-                        page: page
-                    });
                     res.json({
                         status: 200,
-                        msg: '请求成功',
-                        data: articles
+                        msg: 'success'
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 获取文章信息
+    app.get('/api/article/get', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var id, article;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    id = new ObjectId(req.query.id);
+                    return [4 /*yield*/, models_1.ArticlesModel.findOne({
+                            _id: id
+                        }).exec()];
+                case 1:
+                    article = _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'success',
+                        data: article
                     });
                     return [2 /*return*/];
             }
@@ -323,47 +383,3 @@ function default_1(app) {
     }); });
 }
 exports.default = default_1;
-function getArticles() {
-    var options = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        options[_i] = arguments[_i];
-    }
-    var obj = {};
-    var limit = 10;
-    var page = 1;
-    var skip = 0;
-    // 关键词
-    if (options['keywords'] != 'undefined') {
-        obj['title'] = new RegExp(options[0]['keywords'], 'gi');
-    }
-    // 类目，可以单一也可以多个类目并合
-    if (options['cate'] != 'undefined') {
-        obj['cate'] = new RegExp(options['cate'], 'gi');
-    }
-    // 标签
-    // if (options['tags'] != 'undefined') {
-    //     obj['tags'] = new RegExp(options['tags'], 'gi');
-    // }
-    // 分页
-    if (options['page'] != 'undefined') {
-        skip = (page - 1) * limit;
-    }
-    console.log(obj);
-    var articles = models_1.ArticlesModel.find(obj).populate([
-        {
-            path: 'user',
-            select: '_id name avatar' //查询字段
-        },
-        {
-            path: 'tags',
-            select: 'name _id'
-        },
-        {
-            path: 'cate',
-            select: 'name _id'
-        }
-    ]).skip(skip).limit(limit).sort({
-        createdAt: -1
-    }).exec();
-    return articles;
-}
