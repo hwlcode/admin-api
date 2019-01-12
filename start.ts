@@ -1,11 +1,18 @@
 import * as express from 'express';
 import * as path from 'path'
 import * as bodyParser from 'body-parser'
-import {Jwt} from './lib/jwt';
+import * as fs  from 'fs';
 import router from './router';
+import {Jwt} from './lib/jwt';
 import {MinAppLoginStatusModel} from './models';
 
+const https = require('https');
+const http = require('http');
 const app = express();
+
+const privateKey  = fs.readFileSync('cert/private.key', 'utf8');
+const certificate = fs.readFileSync('cert/full_chain.pem', 'utf8');
+const credentials = {key: privateKey, cert: certificate};
 
 //middleware
 app.use('/', express.static(path.join(__dirname, '..', 'public'))); //静态资源存放目录
@@ -59,11 +66,17 @@ app.use('/api/admin/', async function (req, res, next) {
 router(app);
 
 if (process.env.NODE_ENV === 'production') {
-    app.listen(8000, 'localhost', () => {
-        console.log('app is running at pro http://localhost:8000');
+    http.createServer(app).listen(8000, () => {
+        console.log('http is running at pro http://localhost:8000');
+    });
+    https.createServer(credentials, app).listen(443, () =>{
+        console.log('https is running at pro https://localhost:443');
     });
 } else {
-    app.listen(9527, 'localhost', () => {
-        console.log('app is running at dev http://localhost:9527');
+    http.createServer(app).listen(9527, () => {
+        console.log('app is running at pro http://localhost:9527');
+    });
+    https.createServer(credentials, app).listen(443, () =>{
+        console.log('https is running at pro https://localhost:443');
     });
 }

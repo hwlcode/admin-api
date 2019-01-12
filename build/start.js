@@ -39,10 +39,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var path = require("path");
 var bodyParser = require("body-parser");
-var jwt_1 = require("./lib/jwt");
+var fs = require("fs");
 var router_1 = require("./router");
+var jwt_1 = require("./lib/jwt");
 var models_1 = require("./models");
+var https = require('https');
+var http = require('http');
 var app = express();
+var privateKey = fs.readFileSync('cert/private.key', 'utf8');
+var certificate = fs.readFileSync('cert/full_chain.pem', 'utf8');
+var credentials = { key: privateKey, cert: certificate };
 //middleware
 app.use('/', express.static(path.join(__dirname, '..', 'public'))); //静态资源存放目录
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -109,12 +115,18 @@ app.use('/api/admin/', function (req, res, next) {
 });
 router_1.default(app);
 if (process.env.NODE_ENV === 'production') {
-    app.listen(8000, 'localhost', function () {
-        console.log('app is running at pro http://localhost:8000');
+    http.createServer(app).listen(8000, function () {
+        console.log('http is running at pro http://localhost:8000');
+    });
+    https.createServer(credentials, app).listen(443, function () {
+        console.log('https is running at pro https://localhost:443');
     });
 }
 else {
-    app.listen(9527, 'localhost', function () {
-        console.log('app is running at dev http://localhost:9527');
+    http.createServer(app).listen(9527, function () {
+        console.log('app is running at pro http://localhost:9527');
+    });
+    https.createServer(credentials, app).listen(443, function () {
+        console.log('https is running at pro https://localhost:443');
     });
 }
