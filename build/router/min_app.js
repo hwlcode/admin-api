@@ -36,38 +36,67 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = require("../models");
+var jwt_1 = require("../lib/jwt");
+var request = require('request');
 var ObjectId = require('mongodb').ObjectID;
 function default_1(app) {
     var _this = this;
-    app.post('/api/admin/products/post-cate', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var body, cate;
+    // 小程序登录状态
+    app.post('/api/min/onLogin', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var code, userInfo, appId, secret;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    body = req.body;
-                    return [4 /*yield*/, models_1.ProductCateModel.findOne({ name: body.name }).exec()];
-                case 1:
-                    cate = _a.sent();
-                    if (!(cate == null)) return [3 /*break*/, 3];
-                    return [4 /*yield*/, models_1.ProductCateModel.create(body)];
-                case 2:
-                    _a.sent();
-                    res.json({
-                        status: 200,
-                        msg: '添加成功'
+            code = req.body.code;
+            userInfo = req.body.userInfo;
+            appId = 'wx5cd1cb352be7d983';
+            secret = 'a00b8c0497396974c53699a506e42d15';
+            request.get('https://api.weixin.qq.com/sns/jscode2session?appid=' + appId + '&secret=' + secret + '&js_code=' + code + '&grant_type=authorization_code', function (err, resp, body) {
+                return __awaiter(this, void 0, void 0, function () {
+                    var _id, jwt, token, user;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                if (!(resp && resp.statusCode == 200)) return [3 /*break*/, 6];
+                                _id = body.openid;
+                                jwt = new jwt_1.Jwt(_id);
+                                token = jwt.generateToken();
+                                body = JSON.parse(body);
+                                return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOne({ openid: body.openid }).exec()];
+                            case 1:
+                                user = _a.sent();
+                                if (!(user == null)) return [3 /*break*/, 3];
+                                return [4 /*yield*/, models_1.MinAppLoginStatusModel.create({
+                                        openid: body.openid,
+                                        session_key: body.session_key,
+                                        token: token,
+                                        userInfo: userInfo
+                                    })];
+                            case 2:
+                                _a.sent();
+                                return [3 /*break*/, 5];
+                            case 3: return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOneAndUpdate({ openid: body.openid }, {
+                                    token: token,
+                                    userInfo: userInfo
+                                })];
+                            case 4:
+                                _a.sent();
+                                _a.label = 5;
+                            case 5:
+                                res.json({
+                                    status: 200,
+                                    msg: 'success',
+                                    data: token
+                                });
+                                _a.label = 6;
+                            case 6: return [2 /*return*/];
+                        }
                     });
-                    return [3 /*break*/, 4];
-                case 3:
-                    res.json({
-                        status: 1000,
-                        msg: '添加失败，分类己存在'
-                    });
-                    _a.label = 4;
-                case 4: return [2 /*return*/];
-            }
+                });
+            });
+            return [2 /*return*/];
         });
     }); });
-    app.get('/api/admin/products/cate-list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    // 产品类目
+    app.get('/api/min/products/cate-list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var status, productsCates;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -93,94 +122,8 @@ function default_1(app) {
             }
         });
     }); });
-    // 启用|禁用分类
-    app.get('/api/admin/products/change-status', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var id, cate;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    id = new ObjectId(req.query.id);
-                    return [4 /*yield*/, models_1.ProductCateModel.findOne({ _id: id }).exec()];
-                case 1:
-                    cate = _a.sent();
-                    return [4 /*yield*/, models_1.ProductCateModel.updateOne({ _id: id }, {
-                            status: !cate['status']
-                        }).exec()];
-                case 2:
-                    _a.sent();
-                    res.json({
-                        status: 200,
-                        msg: '更新成功'
-                    });
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    app.get('/api/admin/products/cate/del', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var id, cates;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    id = new ObjectId(req.query.id);
-                    return [4 /*yield*/, models_1.ProductCateModel.findOne({ _id: id }).remove()];
-                case 1:
-                    _a.sent();
-                    return [4 /*yield*/, models_1.ProductCateModel.find().exec()];
-                case 2:
-                    cates = _a.sent();
-                    res.json({
-                        status: 200,
-                        msg: '请求成功',
-                        data: cates
-                    });
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    // 添加商品
-    app.post('/api/admin/products/post', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var body, cate;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    body = req.body;
-                    if (!(body.id != undefined)) return [3 /*break*/, 2];
-                    // 更新
-                    return [4 /*yield*/, models_1.ProudctsModel.findOneAndUpdate({
-                            _id: new ObjectId(body.id)
-                        }, body)];
-                case 1:
-                    // 更新
-                    _a.sent();
-                    res.json({
-                        status: 200,
-                        msg: '更新成功'
-                    });
-                    return [3 /*break*/, 6];
-                case 2: return [4 /*yield*/, models_1.ProudctsModel.findOne({ title: body.title }).exec()];
-                case 3:
-                    cate = _a.sent();
-                    if (!(cate == null)) return [3 /*break*/, 5];
-                    return [4 /*yield*/, models_1.ProudctsModel.create(body)];
-                case 4:
-                    _a.sent();
-                    res.json({
-                        status: 200,
-                        msg: '添加成功'
-                    });
-                    return [3 /*break*/, 6];
-                case 5:
-                    res.json({
-                        status: 1000,
-                        msg: '添加失败, 请勿重复添加商品'
-                    });
-                    _a.label = 6;
-                case 6: return [2 /*return*/];
-            }
-        });
-    }); });
-    //搜索商品
-    app.get('/api/admin/products/list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    // 搜索产品
+    app.get('/api/min/products/list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var page, keywords, cates, limit, skip, products, countProduct, cateArr, ObjectIdCateArrt_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -233,24 +176,8 @@ function default_1(app) {
             }
         });
     }); });
-    app.get('/api/admin/products/del', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var id;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    id = new ObjectId(req.query.id);
-                    return [4 /*yield*/, models_1.ProudctsModel.findOne({ _id: id }).remove()];
-                case 1:
-                    _a.sent();
-                    res.json({
-                        status: 200,
-                        msg: 'success'
-                    });
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    app.get('/api/admin/products/get', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    // 获取产品
+    app.get('/api/min/products/get', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var id, product;
         return __generator(this, function (_a) {
             switch (_a.label) {

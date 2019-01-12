@@ -19,6 +19,7 @@
     "mongoose-findorcreate": "^3.0.0",
     "multer": "^1.4.1",
     "qiniu": "^7.2.1",
+    "request": "^2.88.0",
     "ts-md5": "^1.2.4"
   }
 }

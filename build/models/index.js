@@ -15,6 +15,8 @@ var pro_cate_1 = require("./schema/pro_cate");
 exports.ProductCateModel = pro_cate_1.ProductCateModel;
 var product_1 = require("./schema/product");
 exports.ProudctsModel = product_1.ProudctsModel;
+var min_app_login_status_1 = require("./schema/min_app_login_status");
+exports.MinAppLoginStatusModel = min_app_login_status_1.MinAppLoginStatusModel;
 var db = '';
 if (process.env.NODE_ENV === 'production') {
     db = 'mongodb://127.0.0.1:27027/chadao';

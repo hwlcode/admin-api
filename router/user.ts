@@ -6,7 +6,7 @@ const ObjectId = require('mongodb').ObjectID;
 
 export default function (app) {
     // 用户登录
-    app.post('/api/user/login', async (req, res) => {
+    app.post('/api/admin/user/login', async (req, res) => {
         let body = req.body;
 
         await UserModel.findOne({
@@ -27,7 +27,7 @@ export default function (app) {
         });
     });
     // 获取用户基本信息
-    app.get('/api/user/user-profile', async (req, res) => {
+    app.get('/api/admin/user/user-profile', async (req, res) => {
         let token = req.headers.token;
         let jwt = new Jwt(token);
         let result = jwt.verifyToken();
@@ -42,7 +42,7 @@ export default function (app) {
         }
     });
     // 保存用户
-    app.post('/api/user/save-user', async (req, res) => {
+    app.post('/api/admin/user/save-user', async (req, res) => {
         let body = req.body;
 
         let user = await UserModel.findOne({
@@ -64,7 +64,7 @@ export default function (app) {
         })
     });
     // 修改密码
-    app.post('/api/user/password', async (req, res) => {
+    app.post('/api/admin/user/password', async (req, res) => {
         let body = req.body;
         let token = req.headers.token;
         let jwt = new Jwt(token);

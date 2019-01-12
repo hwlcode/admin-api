@@ -65,7 +65,7 @@ function uptoken(bucket, key) {
 // 改造成七牛上传
 function default_1(app) {
     var _this = this;
-    app.post('/api/file/upload', upload.single('file'), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.post('/api/admin/file/upload', upload.single('file'), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var file, key, filePath, token, extra, formUploader;
         return __generator(this, function (_a) {
             file = req.file;

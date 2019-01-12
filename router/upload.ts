@@ -30,7 +30,7 @@ function uptoken(bucket, key) {
 }
 // 改造成七牛上传
 export default function (app) {
-    app.post('/api/file/upload', upload.single('file'), async (req, res) => {
+    app.post('/api/admin/file/upload', upload.single('file'), async (req, res) => {
         const file = req.file;
         //要上传文件的文件名
         const key = file.originalname;

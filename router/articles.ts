@@ -5,7 +5,7 @@ const ObjectId = require('mongodb').ObjectID;
 
 export default function (app) {
     // 保存文章分类
-    app.post('/api/articles/post-cate', async (req, res) => {
+    app.post('/api/admin/articles/post-cate', async (req, res) => {
         let body = req.body;
         const cate = await ArticleCateModel.findOne({name: body.name}).exec();
         if (cate == null) {
@@ -22,7 +22,7 @@ export default function (app) {
         }
     });
     // 查询分类
-    app.get('/api/articles/search', async (req, res) => {
+    app.get('/api/admin/articles/search', async (req, res) => {
         let status = req.query.status;
         // let keywords = req.query.keyword;
         let articlesCates;
@@ -47,7 +47,7 @@ export default function (app) {
         });
     });
     // 删除文章分类
-    app.get('/api/articles/cate', async (req, res) => {
+    app.get('/api/admin/articles/cate', async (req, res) => {
         let id = new ObjectId(req.query.id);
         await ArticleCateModel.findOne({_id: id}).remove();
         let cates = await ArticleCateModel.find().exec();
@@ -59,7 +59,7 @@ export default function (app) {
         });
     });
     // 启用|禁用文章分类
-    app.get('/api/articles/change-status', async (req, res) => {
+    app.get('/api/admin/articles/change-status', async (req, res) => {
         let id = new ObjectId(req.query.id);
         let cate = await ArticleCateModel.findOne({_id: id}).exec();
         await ArticleCateModel.updateOne({_id: id}, {
@@ -73,7 +73,7 @@ export default function (app) {
     });
 
     //保存文章标签
-    app.post('/api/articles/post-tags', async (req, res) => {
+    app.post('/api/admin/articles/post-tags', async (req, res) => {
         let body = req.body;
         const cate = await ArticleTagsModel.findOne({name: body.name}).exec();
         if (cate == null) {
@@ -90,7 +90,7 @@ export default function (app) {
         }
     });
     // 查询标签
-    app.get('/api/articles/search-tags', async (req, res) => {
+    app.get('/api/admin/articles/search-tags', async (req, res) => {
         let status = req.query.status;
         let articlesTags;
 
@@ -109,7 +109,7 @@ export default function (app) {
         });
     });
     // 删除标签
-    app.get('/api/articles/tags/del', async (req, res) => {
+    app.get('/api/admin/articles/tags/del', async (req, res) => {
         let id = new ObjectId(req.query.id);
         await ArticleTagsModel.findOne({_id: id}).remove();
         let tags = await ArticleTagsModel.find().exec();
@@ -121,7 +121,7 @@ export default function (app) {
         });
     });
     // 启用|禁用文章标签
-    app.get('/api/articles/tags/change-status', async (req, res) => {
+    app.get('/api/admin/articles/tags/change-status', async (req, res) => {
         let id = new ObjectId(req.query.id);
         let tag = await ArticleTagsModel.findOne({_id: id}).exec();
         await ArticleTagsModel.updateOne({_id: id}, {
@@ -135,7 +135,7 @@ export default function (app) {
     });
 
     // 发布文章
-    app.post('/api/article/post', async (req, res) => {
+    app.post('/api/admin/article/post', async (req, res) => {
         let body = req.body;
 
         let token = req.headers.token;
@@ -160,7 +160,7 @@ export default function (app) {
         });
     });
     // 搜索文章
-    app.get('/api/article/search', async (req, res) => {
+    app.get('/api/admin/article/search', async (req, res) => {
         let page = req.query.page || 1;
         const limit = 6; // 每页查询的数据
         let skip = (page - 1) * limit;
@@ -221,7 +221,7 @@ export default function (app) {
         })
     });
     // 删除文章
-    app.get('/api/article/del', async (req, res) => {
+    app.get('/api/admin/article/del', async (req, res) => {
         let id = new ObjectId(req.query.id);
         await ArticlesModel.findOne({_id: id}).remove();
 
@@ -231,7 +231,7 @@ export default function (app) {
         });
     });
     // 获取文章信息
-    app.get('/api/article/get', async (req, res) => {
+    app.get('/api/admin/article/get', async (req, res) => {
         let id = new ObjectId(req.query.id);
         let article = await ArticlesModel.findOne({
             _id: id

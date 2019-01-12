@@ -6,6 +6,7 @@ import {ArticleTagsModel} from './schema/article_tags';
 import {ArticlesModel} from './schema/articles';
 import {ProductCateModel} from "./schema/pro_cate";
 import {ProudctsModel} from './schema/product';
+import {MinAppLoginStatusModel} from './schema/min_app_login_status';
 
 let db = '';
 if (process.env.NODE_ENV === 'production') {
@@ -24,6 +25,6 @@ mongoose.connect(db, {useNewUrlParser: true}, err => {
 
 export {
     UserModel, UploadModel, ArticleCateModel, ArticleTagsModel, ArticlesModel,
-    ProductCateModel, ProudctsModel
+    ProductCateModel, ProudctsModel, MinAppLoginStatusModel
 }
 

@@ -3,7 +3,7 @@ import {ProductCateModel, ProudctsModel} from "../models";
 const ObjectId = require('mongodb').ObjectID;
 
 export default function (app) {
-    app.post('/api/products/post-cate', async (req, res) => {
+    app.post('/api/admin/products/post-cate', async (req, res) => {
         let body = req.body;
         const cate = await ProductCateModel.findOne({name: body.name}).exec();
         if (cate == null) {
@@ -20,7 +20,7 @@ export default function (app) {
         }
     });
 
-    app.get('/api/products/cate-list', async (req, res) => {
+    app.get('/api/admin/products/cate-list', async (req, res) => {
         let status = req.query.status;
         let productsCates;
 
@@ -40,7 +40,7 @@ export default function (app) {
     });
 
     // 启用|禁用分类
-    app.get('/api/products/change-status', async (req, res) => {
+    app.get('/api/admin/products/change-status', async (req, res) => {
         let id = new ObjectId(req.query.id);
         let cate = await ProductCateModel.findOne({_id: id}).exec();
         await ProductCateModel.updateOne({_id: id}, {
@@ -53,7 +53,7 @@ export default function (app) {
         });
     });
 
-    app.get('/api/products/cate/del', async (req, res) => {
+    app.get('/api/admin/products/cate/del', async (req, res) => {
         let id = new ObjectId(req.query.id);
         await ProductCateModel.findOne({_id: id}).remove();
         let cates = await ProductCateModel.find().exec();
@@ -66,7 +66,7 @@ export default function (app) {
     });
 
     // 添加商品
-    app.post('/api/products/post', async (req, res) => {
+    app.post('/api/admin/products/post', async (req, res) => {
         let body = req.body;
         if (body.id != undefined) {
             // 更新
@@ -97,7 +97,7 @@ export default function (app) {
     });
 
     //搜索商品
-    app.get('/api/products/list', async (req, res) => {
+    app.get('/api/admin/products/list', async (req, res) => {
         let page = req.query.page || 1;
         let keywords = req.query.keywords || '';
         let cates = req.query.cates;
@@ -141,7 +141,7 @@ export default function (app) {
         })
     });
 
-    app.get('/api/products/del', async (req, res) => {
+    app.get('/api/admin/products/del', async (req, res) => {
         let id = new ObjectId(req.query.id);
         await ProudctsModel.findOne({_id: id}).remove();
 
@@ -151,7 +151,7 @@ export default function (app) {
         });
     });
 
-    app.get('/api/products/get', async (req, res) => {
+    app.get('/api/admin/products/get', async (req, res) => {
         let id = new ObjectId(req.query.id);
         let product = await ProudctsModel.findOne({
             _id: id

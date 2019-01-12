@@ -41,7 +41,7 @@ var ObjectId = require('mongodb').ObjectID;
 function default_1(app) {
     var _this = this;
     // 保存文章分类
-    app.post('/api/articles/post-cate', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.post('/api/admin/articles/post-cate', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var body, cate;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -70,7 +70,7 @@ function default_1(app) {
         });
     }); });
     // 查询分类
-    app.get('/api/articles/search', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/articles/search', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var status, articlesCates;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -97,7 +97,7 @@ function default_1(app) {
         });
     }); });
     // 删除文章分类
-    app.get('/api/articles/cate', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/articles/cate', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var id, cates;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -119,7 +119,7 @@ function default_1(app) {
         });
     }); });
     // 启用|禁用文章分类
-    app.get('/api/articles/change-status', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/articles/change-status', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var id, cate;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -142,7 +142,7 @@ function default_1(app) {
         });
     }); });
     //保存文章标签
-    app.post('/api/articles/post-tags', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.post('/api/admin/articles/post-tags', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var body, cate;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -171,7 +171,7 @@ function default_1(app) {
         });
     }); });
     // 查询标签
-    app.get('/api/articles/search-tags', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/articles/search-tags', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var status, articlesTags;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -198,7 +198,7 @@ function default_1(app) {
         });
     }); });
     // 删除标签
-    app.get('/api/articles/tags/del', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/articles/tags/del', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var id, tags;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -220,7 +220,7 @@ function default_1(app) {
         });
     }); });
     // 启用|禁用文章标签
-    app.get('/api/articles/tags/change-status', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/articles/tags/change-status', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var id, tag;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -243,7 +243,7 @@ function default_1(app) {
         });
     }); });
     // 发布文章
-    app.post('/api/article/post', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.post('/api/admin/article/post', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var body, token, jwt, result, id;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -280,7 +280,7 @@ function default_1(app) {
         });
     }); });
     // 搜索文章
-    app.get('/api/article/search', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/article/search', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var page, limit, skip, keywords, cates, tags, articles, articlesCount, options, cateArr, ObjectIdCateAttr_1, tagsArr, ObjectIdtagsAttr_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -343,7 +343,7 @@ function default_1(app) {
         });
     }); });
     // 删除文章
-    app.get('/api/article/del', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/article/del', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var id;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -361,7 +361,7 @@ function default_1(app) {
         });
     }); });
     // 获取文章信息
-    app.get('/api/article/get', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/article/get', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var id, article;
         return __generator(this, function (_a) {
             switch (_a.label) {

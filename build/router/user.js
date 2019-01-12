@@ -42,7 +42,7 @@ var ObjectId = require('mongodb').ObjectID;
 function default_1(app) {
     var _this = this;
     // 用户登录
-    app.post('/api/user/login', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.post('/api/admin/user/login', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var body;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -73,7 +73,7 @@ function default_1(app) {
         });
     }); });
     // 获取用户基本信息
-    app.get('/api/user/user-profile', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.get('/api/admin/user/user-profile', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var token, jwt, result, id, user;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -97,7 +97,7 @@ function default_1(app) {
         });
     }); });
     // 保存用户
-    app.post('/api/user/save-user', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.post('/api/admin/user/save-user', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var body, user;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -130,7 +130,7 @@ function default_1(app) {
         });
     }); });
     // 修改密码
-    app.post('/api/user/password', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    app.post('/api/admin/user/password', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var body, token, jwt, result, id, user;
         return __generator(this, function (_a) {
             switch (_a.label) {
