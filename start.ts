@@ -69,14 +69,14 @@ if (process.env.NODE_ENV === 'production') {
     http.createServer(app).listen(8000, () => {
         console.log('http is running at pro http://localhost:8000');
     });
-    https.createServer(credentials, app).listen(443, () =>{
-        console.log('https is running at pro https://localhost:443');
-    });
+    // https.createServer(credentials, app).listen(443, () =>{
+    //     console.log('https is running at pro https://localhost:443');
+    // });
 } else {
     http.createServer(app).listen(9527, () => {
         console.log('app is running at pro http://localhost:9527');
     });
-    https.createServer(credentials, app).listen(443, () =>{
-        console.log('https is running at pro https://localhost:443');
-    });
+    // https.createServer(credentials, app).listen(443, () =>{
+    //     console.log('https is running at pro https://localhost:443');
+    // });
 }
