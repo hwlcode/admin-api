@@ -24,7 +24,7 @@ export class Jwt {
         let res;
         try {
             let result = jwt.verify(token, 'lovechadao') || {};
-            let {exp = 0} = result, current = moment().valueOf();
+            let exp = result.exp, current = moment().valueOf();
             if (current <= exp) {
                 res = result.data || {};
             }

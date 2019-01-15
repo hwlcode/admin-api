@@ -20,7 +20,7 @@ var Jwt = (function () {
         var res;
         try {
             var result = jwt.verify(token, 'lovechadao') || {};
-            var _a = result.exp, exp = _a === void 0 ? 0 : _a, current = moment().valueOf();
+            var exp = result.exp, current = moment().valueOf();
             if (current <= exp) {
                 res = result.data || {};
             }

@@ -1,5 +1,5 @@
 import * as multer from 'multer';
-import {UploadModel} from '../models';
+// import {UploadModel} from '../models';
 import * as qiniu from 'qiniu';
 
 const storage = multer.diskStorage({
@@ -20,7 +20,7 @@ const upload = multer({storage: storage});
 // 七牛配置
 qiniu.conf.ACCESS_KEY = 'knHk6MSfcyIYaH-VDUvLLvNNi8lmK5LCLvfeKa7h';
 qiniu.conf.SECRET_KEY = 'VH9zMDzg9wBZp4UBfZZRSLSPdRt6YBH4A2VrkPtA';
-const SDNURL = 'http://pl02v1azy.bkt.clouddn.com/'; // 七牛空间地址
+const SDNURL = ''; // 七牛空间地址
 //要上传的空间
 const bucket = 'webcdn';
 //构建上传策略函数
@@ -46,7 +46,7 @@ export default function (app) {
                 // 上传成功， 处理返回值
                 res.send({
                     code: 200,
-                    path: SDNURL + key,
+                    path: SDNURL + '/uploads/' + key,
                     msg: 'success'
                 });
             } else {

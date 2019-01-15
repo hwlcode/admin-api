@@ -23,7 +23,7 @@ app.use('/api/min/', async(req, res, next) =>{
     if(!regExp){
         // 除登录外
         let appUser = await MinAppLoginStatusModel.findOne({
-            token: req.headers.token
+            openid: req.headers.token
         }).exec();
 
         if (appUser == null) {

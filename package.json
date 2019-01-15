@@ -12,6 +12,7 @@
     "@types/mongoose": "^5.3.5",
     "@types/node": "^10.12.15",
     "@types/qiniu": "^7.0.1",
+    "crypto": "^1.0.1",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.4.0",
     "moment": "^2.23.0",
@@ -20,6 +21,8 @@
     "multer": "^1.4.1",
     "qiniu": "^7.2.1",
     "request": "^2.88.0",
-    "ts-md5": "^1.2.4"
+    "request-promise": "^4.2.2",
+    "ts-md5": "^1.2.4",
+    "xmlreader": "^0.2.3"
   }
 }

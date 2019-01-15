@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var multer = require("multer");
+// import {UploadModel} from '../models';
 var qiniu = require("qiniu");
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -54,7 +55,7 @@ var upload = multer({ storage: storage });
 // 七牛配置
 qiniu.conf.ACCESS_KEY = 'knHk6MSfcyIYaH-VDUvLLvNNi8lmK5LCLvfeKa7h';
 qiniu.conf.SECRET_KEY = 'VH9zMDzg9wBZp4UBfZZRSLSPdRt6YBH4A2VrkPtA';
-var SDNURL = 'http://pl02v1azy.bkt.clouddn.com/'; // 七牛空间地址
+var SDNURL = ''; // 七牛空间地址
 //要上传的空间
 var bucket = 'webcdn';
 //构建上传策略函数
@@ -79,7 +80,7 @@ function default_1(app) {
                     // 上传成功， 处理返回值
                     res.send({
                         code: 200,
-                        path: SDNURL + key,
+                        path: SDNURL + '/uploads/' + key,
                         msg: 'success'
                     });
                 }
