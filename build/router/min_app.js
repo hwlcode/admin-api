@@ -36,48 +36,51 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = require("../models");
-var jwt_1 = require("../lib/jwt");
 var wechat_pay_1 = require("../lib/wechat_pay");
-var request = require('request');
+var request = require('request-promise');
 var ObjectId = require('mongodb').ObjectID;
 var wxPay = new wechat_pay_1.WxPay();
 function default_1(app) {
     var _this = this;
     // 小程序登录状态
     app.post('/api/min/onLogin', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var _this = this;
         var code, userInfo, appId, secret;
         return __generator(this, function (_a) {
             code = req.body.code;
             userInfo = req.body.userInfo;
             appId = 'wx5cd1cb352be7d983';
             secret = 'a00b8c0497396974c53699a506e42d15';
-            request.get('https://api.weixin.qq.com/sns/jscode2session?appid=' + appId + '&secret=' + secret + '&js_code=' + code + '&grant_type=authorization_code', function (err, resp, body) {
-                return __awaiter(this, void 0, void 0, function () {
-                    var _id, jwt, token, user;
+            request.get('https://api.weixin.qq.com/sns/jscode2session?appid=' + appId + '&secret=' + secret + '&js_code=' + code + '&grant_type=authorization_code')
+                .then(function (json) {
+                var body = JSON.parse(json);
+                return body;
+            }).then(function (body) {
+                var openid = body.openid;
+                var session_key = body.session_key;
+                // 获取access_token
+                request.get('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + appId + '&secret=' + secret)
+                    .then(function (resp) { return __awaiter(_this, void 0, void 0, function () {
+                    var user;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
-                            case 0:
-                                if (!(resp && resp.statusCode == 200)) return [3 /*break*/, 6];
-                                body = JSON.parse(body);
-                                _id = body.openid;
-                                jwt = new jwt_1.Jwt(_id);
-                                token = jwt.generateToken();
-                                return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOne({ openid: body.openid }).exec()];
+                            case 0: return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOne({ openid: body.openid }).exec()];
                             case 1:
                                 user = _a.sent();
                                 if (!(user == null)) return [3 /*break*/, 3];
                                 return [4 /*yield*/, models_1.MinAppLoginStatusModel.create({
-                                        openid: body.openid,
-                                        session_key: body.session_key,
-                                        token: token,
-                                        userInfo: userInfo
+                                        openid: openid,
+                                        session_key: session_key,
+                                        userInfo: userInfo,
+                                        access_token: JSON.parse(resp).access_token
                                     })];
                             case 2:
                                 _a.sent();
                                 return [3 /*break*/, 5];
                             case 3: return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOneAndUpdate({ openid: body.openid }, {
-                                    token: token,
-                                    userInfo: userInfo
+                                    userInfo: userInfo,
+                                    session_key: session_key,
+                                    access_token: JSON.parse(resp).access_token
                                 })];
                             case 4:
                                 _a.sent();
@@ -88,11 +91,10 @@ function default_1(app) {
                                     msg: 'success',
                                     data: body.openid
                                 });
-                                _a.label = 6;
-                            case 6: return [2 /*return*/];
+                                return [2 /*return*/];
                         }
                     });
-                });
+                }); });
             });
             return [2 /*return*/];
         });

@@ -18,9 +18,12 @@ app.all('*', function (req, res, next) {
     next();
 });
 // 小程序路由中间件/api/min/开头的都从这里验证一次
-app.use('/api/min/', async(req, res, next) =>{
-    let regExp = new RegExp('/onLogin', 'gi').test(req.url);
-    if(!regExp){
+app.use('/api/min/', async (req, res, next) => {
+    let regExp = !new RegExp('/onLogin', 'gi').test(req.url)
+        && !new RegExp('/products/cate-list', 'gi').test(req.url)
+        && !new RegExp('/products/list', 'gi').test(req.url)
+        && !new RegExp('/products/get', 'gi').test(req.url);
+    if (regExp) {
         // 除登录外
         let appUser = await MinAppLoginStatusModel.findOne({
             openid: req.headers.token
@@ -31,7 +34,7 @@ app.use('/api/min/', async(req, res, next) =>{
         } else {
             next();
         }
-    }else{
+    } else {
         next();
     }
 });

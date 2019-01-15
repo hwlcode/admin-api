@@ -59,8 +59,11 @@ app.use('/api/min/', function (req, res, next) { return __awaiter(_this, void 0,
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                regExp = new RegExp('/onLogin', 'gi').test(req.url);
-                if (!!regExp) return [3 /*break*/, 2];
+                regExp = !new RegExp('/onLogin', 'gi').test(req.url)
+                    && !new RegExp('/products/cate-list', 'gi').test(req.url)
+                    && !new RegExp('/products/list', 'gi').test(req.url)
+                    && !new RegExp('/products/get', 'gi').test(req.url);
+                if (!regExp) return [3 /*break*/, 2];
                 return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOne({
                         openid: req.headers.token
                     }).exec()];

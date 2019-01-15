@@ -1,7 +1,7 @@
 import {MinAppLoginStatusModel, ProductCateModel, ProudctsModel, AddressModel, OrdersModel} from '../models';
-import {Jwt} from '../lib/jwt';
-import {WxPay} from  '../lib/wechat_pay';
-var request = require('request');
+import {WxPay} from '../lib/wechat_pay';
+
+var request = require('request-promise');
 const ObjectId = require('mongodb').ObjectID;
 let wxPay = new WxPay();
 
@@ -12,34 +12,38 @@ export default function (app) {
         let userInfo = req.body.userInfo;
         let appId = 'wx5cd1cb352be7d983';
         let secret = 'a00b8c0497396974c53699a506e42d15';
-        request.get('https://api.weixin.qq.com/sns/jscode2session?appid=' + appId + '&secret=' + secret + '&js_code=' + code + '&grant_type=authorization_code',async function (err, resp, body) {
-            if (resp && resp.statusCode == 200) {
-                body = JSON.parse(body);
-                let _id = body.openid;
-                let jwt = new Jwt(_id);
-                let token = jwt.generateToken();
-                let user = await MinAppLoginStatusModel.findOne({openid: body.openid}).exec();
+        request.get('https://api.weixin.qq.com/sns/jscode2session?appid=' + appId + '&secret=' + secret + '&js_code=' + code + '&grant_type=authorization_code')
+            .then(json => {
+                let body = JSON.parse(json);
+                return body;
+            }).then(body => {
+            let openid = body.openid;
+            let session_key = body.session_key;
+            // 获取access_token
+            request.get('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + appId + '&secret=' + secret)
+                .then(async resp => {
+                    let user = await MinAppLoginStatusModel.findOne({openid: body.openid}).exec();
+                    if (user == null) {
+                        await MinAppLoginStatusModel.create({
+                            openid: openid,
+                            session_key: session_key,
+                            userInfo: userInfo,
+                            access_token: JSON.parse(resp).access_token
+                        });
+                    } else {
+                        await MinAppLoginStatusModel.findOneAndUpdate({openid: body.openid}, {
+                            userInfo: userInfo,
+                            session_key: session_key,
+                            access_token: JSON.parse(resp).access_token
+                        });
+                    }
 
-                if(user == null){
-                     await MinAppLoginStatusModel.create({
-                        openid: body.openid,
-                        session_key: body.session_key,
-                        token: token,
-                        userInfo: userInfo
+                    res.json({
+                        status: 200,
+                        msg: 'success',
+                        data: body.openid
                     });
-                }else{
-                    await MinAppLoginStatusModel.findOneAndUpdate({openid: body.openid}, {
-                        token: token,
-                        userInfo: userInfo
-                    });
-                }
-
-                res.json({
-                    status: 200,
-                    msg: 'success',
-                    data: body.openid
                 });
-            }
         });
     });
     // 产品类目
@@ -120,7 +124,7 @@ export default function (app) {
     });
 
     // 保存收货地址
-    app.post('/api/min/user/save-address', async(req, res) => {
+    app.post('/api/min/user/save-address', async (req, res) => {
         let body = req.body;
 
         let id = req.headers.token;
@@ -130,13 +134,13 @@ export default function (app) {
             userId: id
         }).exec();
 
-        if(address == null){
+        if (address == null) {
             body.isDefault = true
-        }else{
+        } else {
             body.isDefault = false
         }
 
-        if(body.id != undefined){
+        if (body.id != undefined) {
             await AddressModel.findOneAndUpdate({
                 _id: new ObjectId(body.id)
             }, {
@@ -145,7 +149,7 @@ export default function (app) {
                 region: body.region,
                 address: body.address
             });
-        }else{
+        } else {
             await AddressModel.create(body);
         }
 
@@ -155,7 +159,7 @@ export default function (app) {
         })
     });
     // 获取用户的收货地址
-    app.get('/api/min/user/get-address', async(req, res) => {
+    app.get('/api/min/user/get-address', async (req, res) => {
         let id = req.headers.token;
 
         let addresses = await AddressModel.find({
@@ -171,7 +175,7 @@ export default function (app) {
         })
     });
     // 修改默认收货地址
-    app.get('/api/min/user/set-default-address', async(req, res) => {
+    app.get('/api/min/user/set-default-address', async (req, res) => {
         let id = new ObjectId(req.query.id);
 
         await AddressModel.findOneAndUpdate({isDefault: true}, {
@@ -188,7 +192,7 @@ export default function (app) {
         })
     });
     // 获取收货地址信息
-    app.get('/api/min/user/get-address-by-id', async(req, res) => {
+    app.get('/api/min/user/get-address-by-id', async (req, res) => {
         let id = new ObjectId(req.query.id);
         let address = await AddressModel.findOne({_id: id}).exec();
         res.json({
@@ -198,7 +202,7 @@ export default function (app) {
         });
     });
     // 获取用户默认收货地址
-    app.get('/api/min/user/get-address-by-default', async(req, res) => {
+    app.get('/api/min/user/get-address-by-default', async (req, res) => {
         let id = req.headers.token;
 
         let address = await AddressModel.findOne({
@@ -213,7 +217,7 @@ export default function (app) {
         });
     });
     // 删除收货地址
-    app.get('/api/min/user/del-address', async(req, res) => {
+    app.get('/api/min/user/del-address', async (req, res) => {
         let id = new ObjectId(req.query.id);
         await AddressModel.findOneAndDelete(id);
         res.json({
@@ -223,7 +227,7 @@ export default function (app) {
     });
 
     // 创建订单
-    app.post('/api/min/order/create', async(req, res) => {
+    app.post('/api/min/order/create', async (req, res) => {
         let userId = req.headers.token;
         let body = req.body;
         body['sn'] = 'CC' + new Date().getTime();
@@ -238,8 +242,8 @@ export default function (app) {
         })
     });
     // 根据订单_id获取订单
-    app.get('/api/min/order/get', async(req, res) => {
-        let id  = new ObjectId(req.query.id);
+    app.get('/api/min/order/get', async (req, res) => {
+        let id = new ObjectId(req.query.id);
         let order = await OrdersModel.findOne({
             _id: id
         }).exec();
@@ -252,7 +256,7 @@ export default function (app) {
 
     });
     // 更新订单
-    app.post('/api/min/order/update', async(req, res) => {
+    app.post('/api/min/order/update', async (req, res) => {
         let body = req.body;
         let id = new ObjectId(body.id);
         await OrdersModel.findOneAndUpdate({
@@ -282,7 +286,7 @@ export default function (app) {
         );
     });
     // 查询用户订单列表
-    app.get('/api/min/order-list', async(req, res) => {
+    app.get('/api/min/order-list', async (req, res) => {
         let openid = req.headers.token;
 
         let page = req.query.page || 1;
@@ -292,7 +296,7 @@ export default function (app) {
         let status = req.query.status;
         let query = {};
         query['customer'] = openid;
-        if(status){
+        if (status) {
             query['status'] = status;
         }
         let orderList = await OrdersModel.find(query).skip(skip).limit(limit).sort({
@@ -308,7 +312,7 @@ export default function (app) {
         })
     });
     //删除订单
-    app.get('/api/min/del-order', async(req, res) => {
+    app.get('/api/min/del-order', async (req, res) => {
         let id = new ObjectId(req.query.id);
         await OrdersModel.findByIdAndRemove(id);
         res.json({
