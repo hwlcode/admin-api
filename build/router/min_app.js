@@ -255,7 +255,9 @@ function default_1(app) {
                     id = req.headers.token;
                     return [4 /*yield*/, models_1.AddressModel.find({
                             userId: id
-                        }).sort({}).exec()];
+                        }).sort({
+                        // isDefault: -1
+                        }).exec()];
                 case 1:
                     addresses = _a.sent();
                     res.json({
@@ -269,20 +271,27 @@ function default_1(app) {
     }); });
     // 修改默认收货地址
     app.get('/api/min/user/set-default-address', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var id;
+        var id, userId;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    id = new ObjectId(req.query.id);
-                    return [4 /*yield*/, models_1.AddressModel.findOneAndUpdate({ isDefault: true }, {
+                    id = req.query.id;
+                    userId = req.headers.token;
+                    // 把用户的把有收货地址先设为false
+                    return [4 /*yield*/, models_1.AddressModel.updateMany({
+                            userId: userId
+                        }, {
                             isDefault: false
                         })];
                 case 1:
+                    // 把用户的把有收货地址先设为false
                     _a.sent();
+                    // 再更新当前传进来的收货地址设为true
                     return [4 /*yield*/, models_1.AddressModel.findOneAndUpdate({ _id: id }, {
                             isDefault: true
                         })];
                 case 2:
+                    // 再更新当前传进来的收货地址设为true
                     _a.sent();
                     res.json({
                         status: 200,

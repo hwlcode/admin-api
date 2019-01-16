@@ -43,6 +43,7 @@ function default_1(app) {
     var _this = this;
     // 用户登录
     app.post('/api/admin/user/login', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var _this = this;
         var body;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -50,22 +51,31 @@ function default_1(app) {
                     body = req.body;
                     return [4 /*yield*/, models_1.UserModel.findOne({
                             phone: body.userName
-                        }).then(function (data) {
-                            if (data === null) {
-                                res.send({ status: 404, msg: '账号不存在' });
-                            }
-                            else {
-                                if (body.password == data['password']) {
-                                    var _id = data['_id'];
-                                    var jwt = new jwt_1.Jwt(_id);
-                                    var token = jwt.generateToken();
-                                    res.json({ status: 200, msg: '登陆成功', token: token });
+                        }).then(function (data) { return __awaiter(_this, void 0, void 0, function () {
+                            var _id, jwt, token;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!(data === null)) return [3 /*break*/, 1];
+                                        res.send({ status: 404, msg: '账号不存在' });
+                                        return [3 /*break*/, 4];
+                                    case 1:
+                                        if (!(body.password == data['password'])) return [3 /*break*/, 3];
+                                        _id = data['_id'];
+                                        jwt = new jwt_1.Jwt(_id);
+                                        token = jwt.generateToken();
+                                        return [4 /*yield*/, models_1.UserModel.findOneAndUpdate({ _id: _id }, { token: token })];
+                                    case 2:
+                                        _a.sent();
+                                        res.json({ status: 200, msg: '登陆成功', token: token });
+                                        return [3 /*break*/, 4];
+                                    case 3:
+                                        res.json({ status: 404, msg: '账号密码错误' });
+                                        _a.label = 4;
+                                    case 4: return [2 /*return*/];
                                 }
-                                else {
-                                    res.json({ status: 404, msg: '账号密码错误' });
-                                }
-                            }
-                        })];
+                            });
+                        }); })];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];

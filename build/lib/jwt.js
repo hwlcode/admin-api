@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var jwt = require("jsonwebtoken");
 var moment = require("moment");
-var Jwt = (function () {
+var Jwt = /** @class */ (function () {
     function Jwt(data) {
         this.data = data;
     }

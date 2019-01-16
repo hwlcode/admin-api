@@ -11,7 +11,7 @@ export default function (app) {
 
         await UserModel.findOne({
             phone: body.userName
-        }).then(data => {
+        }).then(async data => {
             if (data === null) {
                 res.send({status: 404, msg: '账号不存在'});
             } else {
@@ -19,6 +19,7 @@ export default function (app) {
                     let _id = data['_id'];
                     let jwt = new Jwt(_id);
                     let token = jwt.generateToken();
+                    await UserModel.findOneAndUpdate({_id: _id}, { token: token});
                     res.json({status: 200, msg: '登陆成功', token: token});
                 } else {
                     res.json({status: 404, msg: '账号密码错误'});

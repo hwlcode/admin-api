@@ -176,12 +176,15 @@ export default function (app) {
     });
     // 修改默认收货地址
     app.get('/api/min/user/set-default-address', async (req, res) => {
-        let id = new ObjectId(req.query.id);
-
-        await AddressModel.findOneAndUpdate({isDefault: true}, {
+        let id = req.query.id; // address _id
+        let userId = req.headers.token;
+        // 把用户的把有收货地址先设为false
+        await AddressModel.updateMany({
+            userId: userId
+        }, {
             isDefault: false
         });
-
+        // 再更新当前传进来的收货地址设为true
         await AddressModel.findOneAndUpdate({_id: id}, {
             isDefault: true
         });

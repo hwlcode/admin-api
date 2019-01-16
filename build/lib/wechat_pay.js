@@ -7,7 +7,7 @@ var appid = 'wx5cd1cb352be7d983'; // 小程序appid
 var mch_id = '1509738891'; // 商户号
 var notify_url = '/api/wx_pay/notify';
 var key = 'e23aeef053122aa7b2aa04d503c28681'; // 如果得到的MD5值相同，但签名失败，可能是商户key不对
-var WxPay = (function () {
+var WxPay = /** @class */ (function () {
     function WxPay() {
     }
     /**

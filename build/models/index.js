@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose = require("mongoose");
+//修复报错 https://mongoosejs.com/docs/deprecations.html
+mongoose.set('useFindAndModify', false);
 var user_1 = require("./schema/user");
 exports.UserModel = user_1.UserModel;
 var upload_1 = require("./schema/upload");

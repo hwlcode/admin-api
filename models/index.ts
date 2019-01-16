@@ -1,4 +1,7 @@
 import * as mongoose from 'mongoose';
+//修复报错 https://mongoosejs.com/docs/deprecations.html
+mongoose.set('useFindAndModify', false);
+
 import {UserModel} from './schema/user';
 import {UploadModel} from './schema/upload';
 import {ArticleCateModel} from './schema/article_cate';

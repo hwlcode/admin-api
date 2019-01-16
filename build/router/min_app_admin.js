@@ -65,5 +65,43 @@ function default_1(app) {
             }
         });
     }); });
+    // 查询订单
+    app.get('/api/admin/order-list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var page, limit, skip, query, status, isLast, orderList, sumOrderList, total;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    page = req.query.page || 1;
+                    limit = req.query.limit || 12;
+                    skip = (page - 1) * limit;
+                    query = {};
+                    status = req.query.status;
+                    isLast = false;
+                    if (status) {
+                        query['status'] = status;
+                    }
+                    return [4 /*yield*/, models_1.OrdersModel.find(query).skip(skip).limit(limit).sort({
+                            createdAt: -1
+                        }).exec()];
+                case 1:
+                    orderList = _a.sent();
+                    return [4 /*yield*/, models_1.OrdersModel.find(query).exec()];
+                case 2:
+                    sumOrderList = _a.sent();
+                    total = sumOrderList.length;
+                    if (limit * page >= total) {
+                        isLast = true;
+                    }
+                    res.json({
+                        status: 200,
+                        msg: 'success',
+                        data: orderList,
+                        total: total,
+                        isLast: isLast
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
 }
 exports.default = default_1;
