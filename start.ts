@@ -22,7 +22,9 @@ app.use('/api/min/', async (req, res, next) => {
     let regExp = !new RegExp('/onLogin', 'gi').test(req.url)
         && !new RegExp('/products/cate-list', 'gi').test(req.url)
         && !new RegExp('/products/list', 'gi').test(req.url)
-        && !new RegExp('/products/get', 'gi').test(req.url);
+        && !new RegExp('/products/get', 'gi').test(req.url)
+        && !new RegExp('/activities/list', 'gi').test(req.url)
+        && !new RegExp('/activities/get', 'gi').test(req.url);
     if (regExp) {
         // 除登录外
         let appUser = await MinAppLoginStatusModel.findOne({
@@ -43,8 +45,8 @@ app.use('/api/min/', async (req, res, next) => {
 app.use('/api/admin/', async function (req, res, next) {
     // 这里把登陆和注册请求去掉了，其他所有的api请求都需要进行token校验
     let regx = !new RegExp('/user/login', 'gi').test(req.url)
-        && !new RegExp('/user/register', 'gi').test(req.url)
-        && !new RegExp('/file/upload', 'gi').test(req.url);
+        && !new RegExp('/user/register', 'gi').test(req.url);
+        // && !new RegExp('/file/upload', 'gi').test(req.url);
     if (regx) {
         let token = req.headers.token;
         let jwt = new Jwt(token);

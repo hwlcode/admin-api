@@ -23,6 +23,8 @@ var address_1 = require("./schema/address");
 exports.AddressModel = address_1.AddressModel;
 var orders_1 = require("./schema/orders");
 exports.OrdersModel = orders_1.OrdersModel;
+var activies_1 = require("./schema/activies");
+exports.ActivityModel = activies_1.ActivityModel;
 var db = '';
 if (process.env.NODE_ENV === 'production') {
     db = 'mongodb://127.0.0.1:27027/chadao';

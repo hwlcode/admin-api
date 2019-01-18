@@ -36,7 +36,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var multer = require("multer");
-// import {UploadModel} from '../models';
 var qiniu = require("qiniu");
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -50,12 +49,13 @@ var storage = multer.diskStorage({
 });
 // 用于获取客户端传过来的file数据 http://www.expressjs.com.cn/4x/api.html#req.body
 var upload = multer({ storage: storage });
+var cpUpload = upload.fields([{ name: 'file', maxCount: 1 }, { name: 'banner', maxCount: 8 }]);
 // 错误用法：获取不到file.path -> 注：这个是上传后的地址
 // const upload = multer(storage);
 // 七牛配置
 qiniu.conf.ACCESS_KEY = 'knHk6MSfcyIYaH-VDUvLLvNNi8lmK5LCLvfeKa7h';
 qiniu.conf.SECRET_KEY = 'VH9zMDzg9wBZp4UBfZZRSLSPdRt6YBH4A2VrkPtA';
-var SDNURL = ''; // 七牛空间地址
+var SDNURL = 'http://pl02v1azy.bkt.clouddn.com/'; // 七牛空间地址
 //要上传的空间
 var bucket = 'webcdn';
 //构建上传策略函数
@@ -66,28 +66,63 @@ function uptoken(bucket, key) {
 // 改造成七牛上传
 function default_1(app) {
     var _this = this;
-    app.post('/api/admin/file/upload', upload.single('file'), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var file, key, filePath, token, extra, formUploader;
+    app.post('/api/admin/file/upload', cpUpload, function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var _this = this;
+        var files, filesArr;
         return __generator(this, function (_a) {
-            file = req.file;
-            key = file.originalname;
-            filePath = file.path;
-            token = uptoken(bucket, key);
-            extra = new qiniu.form_up.PutExtra();
-            formUploader = new qiniu.form_up.FormUploader();
-            formUploader.putFile(token, key, filePath, extra, function (err, ret) {
-                if (!err) {
-                    // 上传成功， 处理返回值
-                    res.send({
-                        code: 200,
-                        path: SDNURL + '/uploads/' + key,
-                        msg: 'success'
+            files = req.files;
+            filesArr = [];
+            // req.files['file'][0] -> File
+            // req.files['banner'] -> Array
+            if (files['file']) {
+                filesArr = req.files['file'];
+            }
+            else if (files['banner']) {
+                filesArr = req.files['banner'];
+            }
+            new Promise(function (resolve, reject) {
+                filesArr.map(function (file) { return __awaiter(_this, void 0, void 0, function () {
+                    var key, filePath, token, extra, formUploader;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                key = file.originalname;
+                                filePath = file.path;
+                                token = uptoken(bucket, key);
+                                extra = new qiniu.form_up.PutExtra();
+                                formUploader = new qiniu.form_up.FormUploader();
+                                return [4 /*yield*/, formUploader.putFile(token, key, filePath, extra, function (err, ret) {
+                                        if (!err) {
+                                            // 上传成功
+                                            resolve(ret);
+                                        }
+                                        else {
+                                            // 上传失败， 处理返回代码
+                                            reject(err);
+                                        }
+                                    })];
+                            case 1:
+                                _a.sent();
+                                return [2 /*return*/];
+                        }
                     });
-                }
-                else {
-                    // 上传失败， 处理返回代码
-                    console.log(err);
-                }
+                }); });
+            })
+                .then(function (json) {
+                // 上传成功， 处理返回值
+                res.send({
+                    status: 200,
+                    data: SDNURL + json['key'],
+                    msg: 'success'
+                });
+            })
+                .catch(function (err) {
+                res.send({
+                    status: 10001,
+                    msg: '上传失败,图片服务器异常，请重新上传',
+                    data: err
+                });
+                console.log(err);
             });
             return [2 /*return*/];
         });

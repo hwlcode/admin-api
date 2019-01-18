@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = require("../models");
 var wechat_pay_1 = require("../lib/wechat_pay");
+var moment = require("moment");
 var request = require('request-promise');
 var ObjectId = require('mongodb').ObjectID;
 var wxPay = new wechat_pay_1.WxPay();
@@ -362,16 +363,19 @@ function default_1(app) {
     }); });
     // 创建订单
     app.post('/api/min/order/create', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var userId, body, order;
+        var openid, body, user, order;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    userId = req.headers.token;
+                    openid = req.headers.token;
                     body = req.body;
                     body['sn'] = 'CC' + new Date().getTime();
-                    body['customer'] = userId;
-                    return [4 /*yield*/, models_1.OrdersModel.create(body)];
+                    return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOne({ openid: openid }).exec()];
                 case 1:
+                    user = _a.sent();
+                    body['customer'] = user._id;
+                    return [4 /*yield*/, models_1.OrdersModel.create(body)];
+                case 2:
                     order = _a.sent();
                     res.json({
                         status: 200,
@@ -440,7 +444,7 @@ function default_1(app) {
     });
     // 查询用户订单列表
     app.get('/api/min/order-list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var openid, page, limit, skip, status, query, orderList, sumOrderList;
+        var openid, page, limit, skip, status, query, user, orderList, sumOrderList;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -450,17 +454,20 @@ function default_1(app) {
                     skip = (page - 1) * limit;
                     status = req.query.status;
                     query = {};
-                    query['customer'] = openid;
+                    return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOne({ openid: openid }).exec()];
+                case 1:
+                    user = _a.sent();
+                    query['customer'] = user._id;
                     if (status) {
                         query['status'] = status;
                     }
                     return [4 /*yield*/, models_1.OrdersModel.find(query).skip(skip).limit(limit).sort({
                             createdAt: -1
                         }).exec()];
-                case 1:
+                case 2:
                     orderList = _a.sent();
                     return [4 /*yield*/, models_1.OrdersModel.find(query).exec()];
-                case 2:
+                case 3:
                     sumOrderList = _a.sent();
                     res.json({
                         status: 200,
@@ -485,6 +492,51 @@ function default_1(app) {
                     res.json({
                         status: 200,
                         msg: 'success'
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 首页活动
+    app.get('/api/min/activities/list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var limit, now, activities;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    limit = req.query.limit || 5;
+                    now = moment().toISOString();
+                    return [4 /*yield*/, models_1.ActivityModel.find({
+                            indexShow: true,
+                            startTime: { $lte: now },
+                            endTime: { $gt: now }
+                        }).limit(limit).sort({
+                            createdAt: -1
+                        }).exec()];
+                case 1:
+                    activities = _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'success',
+                        data: activities
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 活动信息
+    app.get('/api/min/activities/get', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var id, activity;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    id = new ObjectId(req.query.id);
+                    return [4 /*yield*/, models_1.ActivityModel.findOne({ _id: id }).exec()];
+                case 1:
+                    activity = _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'success',
+                        data: activity
                     });
                     return [2 /*return*/];
             }

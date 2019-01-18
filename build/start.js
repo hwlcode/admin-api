@@ -62,7 +62,9 @@ app.use('/api/min/', function (req, res, next) { return __awaiter(_this, void 0,
                 regExp = !new RegExp('/onLogin', 'gi').test(req.url)
                     && !new RegExp('/products/cate-list', 'gi').test(req.url)
                     && !new RegExp('/products/list', 'gi').test(req.url)
-                    && !new RegExp('/products/get', 'gi').test(req.url);
+                    && !new RegExp('/products/get', 'gi').test(req.url)
+                    && !new RegExp('/activities/list', 'gi').test(req.url)
+                    && !new RegExp('/activities/get', 'gi').test(req.url);
                 if (!regExp) return [3 /*break*/, 2];
                 return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOne({
                         openid: req.headers.token
@@ -89,8 +91,8 @@ app.use('/api/admin/', function (req, res, next) {
         var regx, token, jwt, result;
         return __generator(this, function (_a) {
             regx = !new RegExp('/user/login', 'gi').test(req.url)
-                && !new RegExp('/user/register', 'gi').test(req.url)
-                && !new RegExp('/file/upload', 'gi').test(req.url);
+                && !new RegExp('/user/register', 'gi').test(req.url);
+            // && !new RegExp('/file/upload', 'gi').test(req.url);
             if (regx) {
                 token = req.headers.token;
                 jwt = new jwt_1.Jwt(token);

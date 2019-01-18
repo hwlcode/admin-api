@@ -5,7 +5,7 @@ var Schema = mongoose.Schema;
 var OrdersSchema = new Schema({
     sn: { type: String, default: null, display: '订单号: cc32424456698' },
     products: { type: String, default: null, display: '订单关联产品' },
-    customer: { type: String, default: null, ref: 'MinAppLoginStatus', display: '客户userId' },
+    customer: { type: Schema.Types.ObjectId, default: null, ref: 'MinAppUser', display: '客户_id' },
     address: { type: Schema.Types.ObjectId, default: null, ref: 'Address', display: '客户收货地址ID' },
     sumPrice: { type: Number, default: 0, display: '订单总价' },
     type: { type: Number, default: 0, display: '订单类型: 0-> 普通订单，1-> 预售订单,预留字段' },

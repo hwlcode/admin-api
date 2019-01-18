@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = require("../models");
+var ObjectId = require('mongodb').ObjectID;
 function default_1(app) {
     var _this = this;
     // 小程序用户
@@ -65,9 +66,9 @@ function default_1(app) {
             }
         });
     }); });
-    // 查询订单
+    // 查询订单列表
     app.get('/api/admin/order-list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-        var page, limit, skip, query, status, isLast, orderList, sumOrderList, total;
+        var page, limit, skip, query, status, keywords, isLast, orderList, sumOrderList, total;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -76,11 +77,21 @@ function default_1(app) {
                     skip = (page - 1) * limit;
                     query = {};
                     status = req.query.status;
+                    keywords = req.query.keywords;
                     isLast = false;
                     if (status) {
                         query['status'] = status;
                     }
-                    return [4 /*yield*/, models_1.OrdersModel.find(query).skip(skip).limit(limit).sort({
+                    if (keywords) {
+                        // 搜索订单号
+                        query['sn'] = new RegExp(keywords, 'gi');
+                    }
+                    return [4 /*yield*/, models_1.OrdersModel.find(query).populate([{
+                                path: 'customer',
+                                select: 'userInfo'
+                            }, {
+                                path: 'address'
+                            }]).skip(skip).limit(limit).sort({
                             createdAt: -1
                         }).exec()];
                 case 1:
@@ -98,6 +109,125 @@ function default_1(app) {
                         data: orderList,
                         total: total,
                         isLast: isLast
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 查询订单by _id
+    app.get('/api/admin/get-order', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var id, order;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    id = new ObjectId(req.query.id);
+                    return [4 /*yield*/, models_1.OrdersModel.findOne({ _id: id }).populate([
+                            {
+                                path: 'customer',
+                                select: 'userInfo'
+                            },
+                            {
+                                path: 'address'
+                            }
+                        ]).exec()];
+                case 1:
+                    order = _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'success',
+                        data: order
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 更新订单
+    app.post('/api/admin/order/update', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var body, id;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    body = req.body;
+                    id = new ObjectId(body.id);
+                    return [4 /*yield*/, models_1.OrdersModel.findOneAndUpdate({
+                            _id: id
+                        }, body)];
+                case 1:
+                    _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'success'
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 发布活动
+    app.post('/api/admin/activity/post', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var body;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    body = req.body;
+                    if (!body.id) return [3 /*break*/, 2];
+                    return [4 /*yield*/, models_1.ActivityModel.findByIdAndUpdate(new ObjectId(body.id), body)];
+                case 1:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 2: return [4 /*yield*/, models_1.ActivityModel.create(body)];
+                case 3:
+                    _a.sent();
+                    _a.label = 4;
+                case 4:
+                    res.json({
+                        status: 200,
+                        msg: '发布成功'
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 活动列表
+    app.get('/api/admin/activity/list', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var page, limit, skip, list, sumList;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    page = req.query.page || 1;
+                    limit = 12;
+                    skip = (page - 1) * limit;
+                    return [4 /*yield*/, models_1.ActivityModel.find().skip(skip).limit(limit).sort({
+                            createdAt: -1
+                        }).exec()];
+                case 1:
+                    list = _a.sent();
+                    return [4 /*yield*/, models_1.ActivityModel.find().exec()];
+                case 2:
+                    sumList = _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'success',
+                        data: list,
+                        total: sumList.length
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    // 获取活动信息
+    app.get('/api/admin/activity/get', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var id, activity;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    id = new ObjectId(req.query.id);
+                    return [4 /*yield*/, models_1.ActivityModel.findOne({ _id: id }).exec()];
+                case 1:
+                    activity = _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'success',
+                        data: activity
                     });
                     return [2 /*return*/];
             }

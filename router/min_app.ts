@@ -1,5 +1,13 @@
-import {MinAppLoginStatusModel, ProductCateModel, ProudctsModel, AddressModel, OrdersModel} from '../models';
+import {
+    MinAppLoginStatusModel,
+    ProductCateModel,
+    ProudctsModel,
+    AddressModel,
+    OrdersModel,
+    ActivityModel
+} from '../models';
 import {WxPay} from '../lib/wechat_pay';
+import * as moment from 'moment';
 
 var request = require('request-promise');
 const ObjectId = require('mongodb').ObjectID;
@@ -231,10 +239,11 @@ export default function (app) {
 
     // 创建订单
     app.post('/api/min/order/create', async (req, res) => {
-        let userId = req.headers.token;
+        let openid = req.headers.token;
         let body = req.body;
         body['sn'] = 'CC' + new Date().getTime();
-        body['customer'] = userId;
+        let user = await MinAppLoginStatusModel.findOne({openid: openid}).exec();
+        body['customer'] = user._id;
 
         let order = await OrdersModel.create(body);
 
@@ -298,7 +307,8 @@ export default function (app) {
 
         let status = req.query.status;
         let query = {};
-        query['customer'] = openid;
+        let user = await MinAppLoginStatusModel.findOne({openid: openid}).exec();
+        query['customer'] = user._id;
         if (status) {
             query['status'] = status;
         }
@@ -321,6 +331,36 @@ export default function (app) {
         res.json({
             status: 200,
             msg: 'success'
+        });
+    });
+
+    // 首页活动
+    app.get('/api/min/activities/list', async (req, res) => {
+        let limit = req.query.limit || 5;
+        let now = moment().toISOString();
+        let activities = await ActivityModel.find({
+            indexShow: true,
+            startTime: {$lte: now},
+            endTime: {$gt: now}
+        }).limit(limit).sort({
+            createdAt: -1
+        }).exec();
+
+        res.json({
+            status: 200,
+            msg: 'success',
+            data: activities
+        });
+    });
+    // 活动信息
+    app.get('/api/min/activities/get',async(req, res) => {
+        let id = new ObjectId(req.query.id);
+        let activity = await ActivityModel.findOne({_id: id}).exec();
+
+        res.json({
+            status: 200,
+            msg: 'success',
+            data: activity
         });
     });
 }
