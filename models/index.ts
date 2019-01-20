@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import config from '../lib/config';
 //修复报错 https://mongoosejs.com/docs/deprecations.html
 mongoose.set('useFindAndModify', false);
 
@@ -16,9 +17,9 @@ import {ActivityModel} from './schema/activies';
 
 let db = '';
 if (process.env.NODE_ENV === 'production') {
-    db = 'mongodb://127.0.0.1:27027/chadao';
+    db = config.mongodb.DBURL + ':' + config.mongodb.SERVERPORT + '/' +config.mongodb.DATABASE;
 } else {
-    db = 'mongodb://127.0.0.1:27017/chadao';
+    db = config.mongodb.DBURL + ':' + config.mongodb.PORT + '/' +config.mongodb.DATABASE;
 }
 
 (mongoose as any).Promise = global.Promise;

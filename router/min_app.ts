@@ -7,6 +7,7 @@ import {
     ActivityModel
 } from '../models';
 import {WxPay} from '../lib/wechat_pay';
+import config from '../lib/config';
 import * as moment from 'moment';
 
 var request = require('request-promise');
@@ -18,8 +19,8 @@ export default function (app) {
     app.post('/api/min/onLogin', async (req, res) => {
         let code = req.body.code;
         let userInfo = req.body.userInfo;
-        let appId = 'wx5cd1cb352be7d983';
-        let secret = 'a00b8c0497396974c53699a506e42d15';
+        let appId = config.wechat.APPID;
+        let secret = config.wechat.SECRET;
         request.get('https://api.weixin.qq.com/sns/jscode2session?appid=' + appId + '&secret=' + secret + '&js_code=' + code + '&grant_type=authorization_code')
             .then(json => {
                 let body = JSON.parse(json);
@@ -52,6 +53,16 @@ export default function (app) {
                         data: body.openid
                     });
                 });
+        });
+    });
+    // 获取accessToken
+    app.get('/api/min/get-access-token', async(req, res) => {
+        let openid = req.query.openid;
+        let user = await MinAppLoginStatusModel.findOne({openid: openid}).exec();
+        res.json({
+            status: 200,
+            msg: 'msg',
+            data: user['access_token']
         });
     });
     // 产品类目
@@ -258,7 +269,15 @@ export default function (app) {
         let id = new ObjectId(req.query.id);
         let order = await OrdersModel.findOne({
             _id: id
-        }).exec();
+        }).populate([
+            {
+                path: 'customer',
+                select: 'userInfo'
+            },
+            {
+                path: 'address'
+            }
+        ]).exec();
 
         res.json({
             status: 200,

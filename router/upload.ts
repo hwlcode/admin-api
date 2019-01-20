@@ -1,5 +1,6 @@
 import * as multer from 'multer';
 import * as qiniu from 'qiniu';
+import config  from '../lib/config';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -18,11 +19,11 @@ const cpUpload = upload.fields([{name: 'file', maxCount: 1}, {name: 'banner', ma
 // const upload = multer(storage);
 
 // 七牛配置
-qiniu.conf.ACCESS_KEY = 'knHk6MSfcyIYaH-VDUvLLvNNi8lmK5LCLvfeKa7h';
-qiniu.conf.SECRET_KEY = 'VH9zMDzg9wBZp4UBfZZRSLSPdRt6YBH4A2VrkPtA';
-const SDNURL = 'http://pl02v1azy.bkt.clouddn.com/'; // 七牛空间地址
+qiniu.conf.ACCESS_KEY = config.qiniu.ACCESS_KEY;
+qiniu.conf.SECRET_KEY = config.qiniu.SECRET_KEY;
+const SDNURL = config.qiniu.SDNURL; // 七牛空间地址
 //要上传的空间
-const bucket = 'webcdn';
+const bucket = config.qiniu.BUCKKET;
 
 //构建上传策略函数
 function uptoken(bucket, key) {

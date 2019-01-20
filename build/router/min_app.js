@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = require("../models");
 var wechat_pay_1 = require("../lib/wechat_pay");
+var config_1 = require("../lib/config");
 var moment = require("moment");
 var request = require('request-promise');
 var ObjectId = require('mongodb').ObjectID;
@@ -50,8 +51,8 @@ function default_1(app) {
         return __generator(this, function (_a) {
             code = req.body.code;
             userInfo = req.body.userInfo;
-            appId = 'wx5cd1cb352be7d983';
-            secret = 'a00b8c0497396974c53699a506e42d15';
+            appId = config_1.default.wechat.APPID;
+            secret = config_1.default.wechat.SECRET;
             request.get('https://api.weixin.qq.com/sns/jscode2session?appid=' + appId + '&secret=' + secret + '&js_code=' + code + '&grant_type=authorization_code')
                 .then(function (json) {
                 var body = JSON.parse(json);
@@ -98,6 +99,25 @@ function default_1(app) {
                 }); });
             });
             return [2 /*return*/];
+        });
+    }); });
+    // 获取accessToken
+    app.get('/api/min/get-access-token', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        var openid, user;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    openid = req.query.openid;
+                    return [4 /*yield*/, models_1.MinAppLoginStatusModel.findOne({ openid: openid }).exec()];
+                case 1:
+                    user = _a.sent();
+                    res.json({
+                        status: 200,
+                        msg: 'msg',
+                        data: user['access_token']
+                    });
+                    return [2 /*return*/];
+            }
         });
     }); });
     // 产品类目
@@ -395,7 +415,15 @@ function default_1(app) {
                     id = new ObjectId(req.query.id);
                     return [4 /*yield*/, models_1.OrdersModel.findOne({
                             _id: id
-                        }).exec()];
+                        }).populate([
+                            {
+                                path: 'customer',
+                                select: 'userInfo'
+                            },
+                            {
+                                path: 'address'
+                            }
+                        ]).exec()];
                 case 1:
                     order = _a.sent();
                     res.json({

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose = require("mongoose");
+var config_1 = require("../lib/config");
 //修复报错 https://mongoosejs.com/docs/deprecations.html
 mongoose.set('useFindAndModify', false);
 var user_1 = require("./schema/user");
@@ -27,10 +28,10 @@ var activies_1 = require("./schema/activies");
 exports.ActivityModel = activies_1.ActivityModel;
 var db = '';
 if (process.env.NODE_ENV === 'production') {
-    db = 'mongodb://127.0.0.1:27027/chadao';
+    db = config_1.default.mongodb.DBURL + ':' + config_1.default.mongodb.SERVERPORT + '/' + config_1.default.mongodb.DATABASE;
 }
 else {
-    db = 'mongodb://127.0.0.1:27017/chadao';
+    db = config_1.default.mongodb.DBURL + ':' + config_1.default.mongodb.PORT + '/' + config_1.default.mongodb.DATABASE;
 }
 mongoose.Promise = global.Promise;
 mongoose.connect(db, { useNewUrlParser: true }, function (err) {

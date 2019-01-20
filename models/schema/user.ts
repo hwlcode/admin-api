@@ -11,7 +11,8 @@ let UserSchema = new Schema({
     address: {type: String, default: null, display: '详细地址'},
     phone: {type: String, default: null, display: '手机号码'},
     password: {type: String, default: null, display: '登录密码'},
-    token: {type: String, default: null, display: '根据token有效性判断是否登录'}
+    token: {type: String, default: null, display: '根据token有效性判断是否登录'},
+    role: {type: Number, default: 1, display: '角色'}
 }, {
     timestamps: true
 });

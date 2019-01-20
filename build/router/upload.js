@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var multer = require("multer");
 var qiniu = require("qiniu");
+var config_1 = require("../lib/config");
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         //目录要手动创建
@@ -53,11 +54,11 @@ var cpUpload = upload.fields([{ name: 'file', maxCount: 1 }, { name: 'banner', m
 // 错误用法：获取不到file.path -> 注：这个是上传后的地址
 // const upload = multer(storage);
 // 七牛配置
-qiniu.conf.ACCESS_KEY = 'knHk6MSfcyIYaH-VDUvLLvNNi8lmK5LCLvfeKa7h';
-qiniu.conf.SECRET_KEY = 'VH9zMDzg9wBZp4UBfZZRSLSPdRt6YBH4A2VrkPtA';
-var SDNURL = 'http://pl02v1azy.bkt.clouddn.com/'; // 七牛空间地址
+qiniu.conf.ACCESS_KEY = config_1.default.qiniu.ACCESS_KEY;
+qiniu.conf.SECRET_KEY = config_1.default.qiniu.SECRET_KEY;
+var SDNURL = config_1.default.qiniu.SDNURL; // 七牛空间地址
 //要上传的空间
-var bucket = 'webcdn';
+var bucket = config_1.default.qiniu.BUCKKET;
 //构建上传策略函数
 function uptoken(bucket, key) {
     var putPolicy = new qiniu.rs.PutPolicy({ scope: bucket + ":" + key });
