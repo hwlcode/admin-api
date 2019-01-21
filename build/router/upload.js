@@ -113,7 +113,7 @@ function default_1(app) {
                 // 上传成功， 处理返回值
                 res.send({
                     status: 200,
-                    data: SDNURL + json['key'] + '?imageView2/1/w/750/q/65',
+                    data: SDNURL + json['key'] + '?imageView2/0/w/750/q/65',
                     msg: 'success'
                 });
             })
