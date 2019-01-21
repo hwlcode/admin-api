@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongodb = {
-    IP: 'mongodb://127.0.0.1',
+    IP: '127.0.0.1',
     PORT: '27017',
     SERVERPORT: '27027',
     USERNAME: 'hwlweb',
