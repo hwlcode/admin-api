@@ -15,7 +15,7 @@ const wechat = {
 const qiniu = {
   ACCESS_KEY: 'knHk6MSfcyIYaH-VDUvLLvNNi8lmK5LCLvfeKa7h',
   SECRET_KEY: 'VH9zMDzg9wBZp4UBfZZRSLSPdRt6YBH4A2VrkPtA',
-  SDNURL: 'http://pl02v1azy.bkt.clouddn.com/',
+  SDNURL: 'https://cdn.welcometo5g.cn/',
   BUCKKET: 'webcdn'
 };
 
