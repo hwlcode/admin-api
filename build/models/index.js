@@ -28,10 +28,10 @@ var activies_1 = require("./schema/activies");
 exports.ActivityModel = activies_1.ActivityModel;
 var db = '';
 if (process.env.NODE_ENV === 'production') {
-    db = 'mongodb://' + config_1.default.mongodb.USERNAME + ':' + config_1.default.mongodb.PASSWORD + '@ip:' + config_1.default.mongodb.IP + ':' + config_1.default.mongodb.SERVERPORT + '/' + config_1.default.mongodb.DATABASE;
+    db = 'mongodb://' + config_1.default.mongodb.USERNAME + ':' + config_1.default.mongodb.PASSWORD + '@' + config_1.default.mongodb.IP + ':' + config_1.default.mongodb.SERVERPORT + '/' + config_1.default.mongodb.DATABASE;
 }
 else {
-    db = config_1.default.mongodb.DBURL + ':' + config_1.default.mongodb.PORT + '/' + config_1.default.mongodb.DATABASE;
+    db = 'mongodb://' + config_1.default.mongodb.IP + ':' + config_1.default.mongodb.PORT + '/' + config_1.default.mongodb.DATABASE;
 }
 mongoose.Promise = global.Promise;
 mongoose.connect(db, { useNewUrlParser: true }, function (err) {

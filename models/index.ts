@@ -17,9 +17,9 @@ import {ActivityModel} from './schema/activies';
 
 let db = '';
 if (process.env.NODE_ENV === 'production') {
-    db = 'mongodb://' + config.mongodb.USERNAME + ':' + config.mongodb.PASSWORD + '@ip:' + config.mongodb.IP + ':' + config.mongodb.SERVERPORT + '/' +config.mongodb.DATABASE;
+    db = 'mongodb://' + config.mongodb.USERNAME + ':' + config.mongodb.PASSWORD + '@' + config.mongodb.IP + ':' + config.mongodb.SERVERPORT + '/' +config.mongodb.DATABASE;
 } else {
-    db = config.mongodb.DBURL + ':' + config.mongodb.PORT + '/' +config.mongodb.DATABASE;
+    db = 'mongodb://' + config.mongodb.IP + ':' + config.mongodb.PORT + '/' +config.mongodb.DATABASE;
 }
 
 (mongoose as any).Promise = global.Promise;
