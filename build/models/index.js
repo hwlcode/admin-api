@@ -28,7 +28,7 @@ var activies_1 = require("./schema/activies");
 exports.ActivityModel = activies_1.ActivityModel;
 var db = '';
 if (process.env.NODE_ENV === 'production') {
-    db = config_1.default.mongodb.DBURL + ':' + config_1.default.mongodb.SERVERPORT + '/' + config_1.default.mongodb.DATABASE;
+    db = 'mongodb://' + config_1.default.mongodb.USERNAME + ':' + config_1.default.mongodb.PASSWORD + '@ip:' + config_1.default.mongodb.IP + ':' + config_1.default.mongodb.SERVERPORT + '/' + config_1.default.mongodb.DATABASE;
 }
 else {
     db = config_1.default.mongodb.DBURL + ':' + config_1.default.mongodb.PORT + '/' + config_1.default.mongodb.DATABASE;

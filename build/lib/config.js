@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongodb = {
-    DBURL: 'mongodb://127.0.0.1',
+    IP: 'mongodb://127.0.0.1',
     PORT: '27017',
     SERVERPORT: '27027',
-    USERNAME: '',
-    PASSWORD: '',
+    USERNAME: 'hwlweb',
+    PASSWORD: 'hwl512921',
     DATABASE: 'chadao'
 };
 var wechat = {
